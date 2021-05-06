@@ -1,0 +1,93 @@
+﻿<Window x:Class="LaundryManager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LaundryManager"
+        mc:Ignorable="d"
+        Title="Laundry Manager - Wolds Laundry Services" Height="600" Width="800"
+        Loaded="Window_Loaded">
+    <Border Padding="10">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Find by Name" Margin="0 0 0 2"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <Button Content="A" />
+                        <Button Content="K" />
+                        <Button Content="U" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1">
+                        <Button Content="B" />
+                        <Button Content="L" />
+                        <Button Content="V" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <Button Content="C" />
+                        <Button Content="M" />
+                        <Button Content="W" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="3">
+                        <Button Content="D" />
+                        <Button Content="N" />
+                        <Button Content="X" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="4">
+                        <Button Content="E" />
+                        <Button Content="O" />
+                        <Button Content="Y" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="5">
+                        <Button Content="F" />
+                        <Button Content="P" />
+                        <Button Content="Z" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="6">
+                        <Button Content="G" />
+                        <Button Content="Q" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="7">
+                        <Button Content="H" />
+                        <Button Content="R" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="8">
+                        <Button Content="I" />
+                        <Button Content="S" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="9">
+                        <Button Content="J" />
+                        <Button Content="T" />
+                    </StackPanel>
+                </Grid>
+
+            </StackPanel>
+            <StackPanel Grid.Column="1">
+
+            </StackPanel>
+            <StackPanel Grid.Column="2">
+
+            </StackPanel>
+
+        </Grid>
+
+
+
+    </Border>
+</Window>
