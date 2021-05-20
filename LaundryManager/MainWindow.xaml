@@ -30,52 +30,59 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
-                        <Button Content="A" />
-                        <Button Content="K" />
-                        <Button Content="U" />
+                        <Button Content="A" Margin="2 0 1 1"/>
+                        <Button Content="K" Margin="2 0 1 1"/>
+                        <Button Content="U" Margin="2 0 1 1"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1">
-                        <Button Content="B" />
-                        <Button Content="L" />
-                        <Button Content="V" />
+                        <Button Content="B" Margin="1 0 1 1"/>
+                        <Button Content="L" Margin="1 0 1 1"/>
+                        <Button Content="V" Margin="1 0 1 1"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
-                        <Button Content="C" />
-                        <Button Content="M" />
-                        <Button Content="W" />
+                        <Button Content="C" Margin="1 0 1 1"/>
+                        <Button Content="M" Margin="1 0 1 1"/>
+                        <Button Content="W" Margin="1 0 1 1"/>
                     </StackPanel>
                     <StackPanel Grid.Column="3">
-                        <Button Content="D" />
-                        <Button Content="N" />
-                        <Button Content="X" />
+                        <Button Content="D" Margin="1 0 1 1"/>
+                        <Button Content="N" Margin="1 0 1 1"/>
+                        <Button Content="X" Margin="1 0 1 1"/>
                     </StackPanel>
                     <StackPanel Grid.Column="4">
-                        <Button Content="E" />
-                        <Button Content="O" />
-                        <Button Content="Y" />
+                        <Button Content="E" Margin="1 0 1 1"/>
+                        <Button Content="O" Margin="1 0 1 1"/>
+                        <Button Content="Y" Margin="1 0 1 1"/>
                     </StackPanel>
                     <StackPanel Grid.Column="5">
-                        <Button Content="F" />
-                        <Button Content="P" />
-                        <Button Content="Z" />
+                        <Button Content="F" Margin="1 0 1 1"/>
+                        <Button Content="P" Margin="1 0 1 1"/>
+                        <Button Content="Z" Margin="1 0 1 1"/>
                     </StackPanel>
                     <StackPanel Grid.Column="6">
-                        <Button Content="G" />
-                        <Button Content="Q" />
+                        <Button Content="G" Margin="1 0 1 1"/>
+                        <Button Content="Q" Margin="1 0 1 1"/>
                     </StackPanel>
                     <StackPanel Grid.Column="7">
-                        <Button Content="H" />
-                        <Button Content="R" />
+                        <Button Content="H" Margin="1 0 1 1"/>
+                        <Button Content="R" Margin="1 0 1 1"/>
                     </StackPanel>
                     <StackPanel Grid.Column="8">
-                        <Button Content="I" />
-                        <Button Content="S" />
+                        <Button Content="I" Margin="1 0 1 1"/>
+                        <Button Content="S" Margin="1 0 1 1"/>
                     </StackPanel>
                     <StackPanel Grid.Column="9">
-                        <Button Content="J" />
-                        <Button Content="T" />
+                        <Button Content="J" Margin="1 0 2 1"/>
+                        <Button Content="T" Margin="1 0 2 1"/>
                     </StackPanel>
                 </Grid>
+                <TextBlock Text="Find by Customer Number" Margin="0 10 0 0"/>
+                <ListBox x:Name="listBoxFindByCustomer" Height="100" Margin="2 0 2 0" SelectionChanged="ListBoxFindByCustomer_SelectionChanged"/>
+                <TextBlock Text="Select Customer" Margin="0 10 0 0"/>
+                <ListBox Height="100" Margin="2 0 2 0"/>
+                <TextBlock Text="Customer Details" Margin="0 10 0 0"/>
+                <TextBlock Text="..." TextWrapping="Wrap" Margin="2 0 2 0" Height="200"/>
+
 
             </StackPanel>
             <StackPanel Grid.Column="1">

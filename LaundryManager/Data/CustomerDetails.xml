@@ -1,0 +1,208 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<Customers>
+	<Customer>
+		<CN>1</CN>
+		<FirstName>Han</FirstName>
+		<LastName>ry</LastName>
+		<AddressLn1>Eastfield</AddressLn1>
+		<AddressLn2>Eastfield Farm</AddressLn2>
+		<AddressLn3>Mavis Enderby</AddressLn3>
+		<AddressTown>Spilsby</AddressTown>
+		<AddressCounty>Lincs</AddressCounty>
+		<AddressPostCode>PE23 5TT</AddressPostCode>
+		<PhonePrimary>07747 602340</PhonePrimary>
+		<PhoneSecondary>01790 222308</PhoneSecondary>
+		<PhoneTertiary>01790 753452</PhoneTertiary>
+		<EmailPrimary>hannahmodemode@hotmail.com</EmailPrimary>
+		<EmailSecondary>rod@average.co.uk</EmailSecondary>
+		<EmailTertiary>rod.james@googlemail.com</EmailTertiary>
+	</Customer>
+	<Customer>
+		<CN>2</CN>
+		<FirstName>nah</FirstName>
+		<LastName>Eeerry</LastName>
+		<AddressLn1>House</AddressLn1>
+		<AddressLn2>Farm</AddressLn2>
+		<AddressLn3>Enderby By creek</AddressLn3>
+		<AddressTown>Spilsby</AddressTown>
+		<AddressCounty>Lincs</AddressCounty>
+		<AddressPostCode>PE23 2EJ</AddressPostCode>
+		<PhonePrimary>07747 123470</PhonePrimary>
+		<PhoneSecondary>01790 123408</PhoneSecondary>
+		<PhoneTertiary>01790 123412</PhoneTertiary>
+		<EmailPrimary>page@hotmail.com</EmailPrimary>
+		<EmailSecondary>rod@age.co.uk</EmailSecondary>
+		<EmailTertiary>avery@googlemail.com</EmailTertiary>
+	</Customer>
+	<Customer>
+		<CN>3</CN>
+		<FirstName>Han</FirstName>
+		<LastName>ry</LastName>
+		<AddressLn1>Eastfield</AddressLn1>
+		<AddressLn2>Eastfield Farm</AddressLn2>
+		<AddressLn3>Mavis Enderby</AddressLn3>
+		<AddressTown>Spilsby</AddressTown>
+		<AddressCounty>Lincs</AddressCounty>
+		<AddressPostCode>PE23 5TT</AddressPostCode>
+		<PhonePrimary>07747 602340</PhonePrimary>
+		<PhoneSecondary>01790 222308</PhoneSecondary>
+		<PhoneTertiary>01790 753452</PhoneTertiary>
+		<EmailPrimary>hannahmodemode@hotmail.com</EmailPrimary>
+		<EmailSecondary>rod@average.co.uk</EmailSecondary>
+		<EmailTertiary>rod.james@googlemail.com</EmailTertiary>
+	</Customer>
+	<Customer>
+		<CN>4</CN>
+		<FirstName>nah</FirstName>
+		<LastName>Eeerry</LastName>
+		<AddressLn1>House</AddressLn1>
+		<AddressLn2>Farm</AddressLn2>
+		<AddressLn3>Enderby By creek</AddressLn3>
+		<AddressTown>Spilsby</AddressTown>
+		<AddressCounty>Lincs</AddressCounty>
+		<AddressPostCode>PE23 2EJ</AddressPostCode>
+		<PhonePrimary>07747 123470</PhonePrimary>
+		<PhoneSecondary>01790 123408</PhoneSecondary>
+		<PhoneTertiary>01790 123412</PhoneTertiary>
+		<EmailPrimary>page@hotmail.com</EmailPrimary>
+		<EmailSecondary>rod@age.co.uk</EmailSecondary>
+		<EmailTertiary>avery@googlemail.com</EmailTertiary>
+	</Customer>
+	<Customer>
+		<CN>5</CN>
+		<FirstName>Han</FirstName>
+		<LastName>ry</LastName>
+		<AddressLn1>Eastfield</AddressLn1>
+		<AddressLn2>Eastfield Farm</AddressLn2>
+		<AddressLn3>Mavis Enderby</AddressLn3>
+		<AddressTown>Spilsby</AddressTown>
+		<AddressCounty>Lincs</AddressCounty>
+		<AddressPostCode>PE23 5TT</AddressPostCode>
+		<PhonePrimary>07747 602340</PhonePrimary>
+		<PhoneSecondary>01790 222308</PhoneSecondary>
+		<PhoneTertiary>01790 753452</PhoneTertiary>
+		<EmailPrimary>hannahmodemode@hotmail.com</EmailPrimary>
+		<EmailSecondary>rod@average.co.uk</EmailSecondary>
+		<EmailTertiary>rod.james@googlemail.com</EmailTertiary>
+	</Customer>
+	<Customer>
+		<CN>6</CN>
+		<FirstName>nah</FirstName>
+		<LastName>Eeerry</LastName>
+		<AddressLn1>House</AddressLn1>
+		<AddressLn2>Farm</AddressLn2>
+		<AddressLn3>Enderby By creek</AddressLn3>
+		<AddressTown>Spilsby</AddressTown>
+		<AddressCounty>Lincs</AddressCounty>
+		<AddressPostCode>PE23 2EJ</AddressPostCode>
+		<PhonePrimary>07747 123470</PhonePrimary>
+		<PhoneSecondary>01790 123408</PhoneSecondary>
+		<PhoneTertiary>01790 123412</PhoneTertiary>
+		<EmailPrimary>page@hotmail.com</EmailPrimary>
+		<EmailSecondary>rod@age.co.uk</EmailSecondary>
+		<EmailTertiary>avery@googlemail.com</EmailTertiary>
+	</Customer>
+	<Customer>
+		<CN>7</CN>
+		<FirstName>Han</FirstName>
+		<LastName>ry</LastName>
+		<AddressLn1>Eastfield</AddressLn1>
+		<AddressLn2>Eastfield Farm</AddressLn2>
+		<AddressLn3>Mavis Enderby</AddressLn3>
+		<AddressTown>Spilsby</AddressTown>
+		<AddressCounty>Lincs</AddressCounty>
+		<AddressPostCode>PE23 5TT</AddressPostCode>
+		<PhonePrimary>07747 602340</PhonePrimary>
+		<PhoneSecondary>01790 222308</PhoneSecondary>
+		<PhoneTertiary>01790 753452</PhoneTertiary>
+		<EmailPrimary>hannahmodemode@hotmail.com</EmailPrimary>
+		<EmailSecondary>rod@average.co.uk</EmailSecondary>
+		<EmailTertiary>rod.james@googlemail.com</EmailTertiary>
+	</Customer>
+	<Customer>
+		<CN>8</CN>
+		<FirstName>nah</FirstName>
+		<LastName>Eeerry</LastName>
+		<AddressLn1>House</AddressLn1>
+		<AddressLn2>Farm</AddressLn2>
+		<AddressLn3>Enderby By creek</AddressLn3>
+		<AddressTown>Spilsby</AddressTown>
+		<AddressCounty>Lincs</AddressCounty>
+		<AddressPostCode>PE23 2EJ</AddressPostCode>
+		<PhonePrimary>07747 123470</PhonePrimary>
+		<PhoneSecondary>01790 123408</PhoneSecondary>
+		<PhoneTertiary>01790 123412</PhoneTertiary>
+		<EmailPrimary>page@hotmail.com</EmailPrimary>
+		<EmailSecondary>rod@age.co.uk</EmailSecondary>
+		<EmailTertiary>avery@googlemail.com</EmailTertiary>
+	</Customer>
+	<Customer>
+		<CN>9</CN>
+		<FirstName>Han</FirstName>
+		<LastName>ry</LastName>
+		<AddressLn1>Eastfield</AddressLn1>
+		<AddressLn2>Eastfield Farm</AddressLn2>
+		<AddressLn3>Mavis Enderby</AddressLn3>
+		<AddressTown>Spilsby</AddressTown>
+		<AddressCounty>Lincs</AddressCounty>
+		<AddressPostCode>PE23 5TT</AddressPostCode>
+		<PhonePrimary>07747 602340</PhonePrimary>
+		<PhoneSecondary>01790 222308</PhoneSecondary>
+		<PhoneTertiary>01790 753452</PhoneTertiary>
+		<EmailPrimary>hannahmodemode@hotmail.com</EmailPrimary>
+		<EmailSecondary>rod@average.co.uk</EmailSecondary>
+		<EmailTertiary>rod.james@googlemail.com</EmailTertiary>
+	</Customer>
+	<Customer>
+		<CN>10</CN>
+		<FirstName>nah</FirstName>
+		<LastName>Eeerry</LastName>
+		<AddressLn1>House</AddressLn1>
+		<AddressLn2>Farm</AddressLn2>
+		<AddressLn3>Enderby By creek</AddressLn3>
+		<AddressTown>Spilsby</AddressTown>
+		<AddressCounty>Lincs</AddressCounty>
+		<AddressPostCode>PE23 2EJ</AddressPostCode>
+		<PhonePrimary>07747 123470</PhonePrimary>
+		<PhoneSecondary>01790 123408</PhoneSecondary>
+		<PhoneTertiary>01790 123412</PhoneTertiary>
+		<EmailPrimary>page@hotmail.com</EmailPrimary>
+		<EmailSecondary>rod@age.co.uk</EmailSecondary>
+		<EmailTertiary>avery@googlemail.com</EmailTertiary>
+	</Customer>
+	<Customer>
+		<CN>11</CN>
+		<FirstName>Han</FirstName>
+		<LastName>ry</LastName>
+		<AddressLn1>Eastfield</AddressLn1>
+		<AddressLn2>Eastfield Farm</AddressLn2>
+		<AddressLn3>Mavis Enderby</AddressLn3>
+		<AddressTown>Spilsby</AddressTown>
+		<AddressCounty>Lincs</AddressCounty>
+		<AddressPostCode>PE23 5TT</AddressPostCode>
+		<PhonePrimary>07747 602340</PhonePrimary>
+		<PhoneSecondary>01790 222308</PhoneSecondary>
+		<PhoneTertiary>01790 753452</PhoneTertiary>
+		<EmailPrimary>hannahmodemode@hotmail.com</EmailPrimary>
+		<EmailSecondary>rod@average.co.uk</EmailSecondary>
+		<EmailTertiary>rod.james@googlemail.com</EmailTertiary>
+	</Customer>
+	<Customer>
+		<CN>12</CN>
+		<FirstName>nah</FirstName>
+		<LastName>Eeerry</LastName>
+		<AddressLn1>House</AddressLn1>
+		<AddressLn2>Farm</AddressLn2>
+		<AddressLn3>Enderby By creek</AddressLn3>
+		<AddressTown>Spilsby</AddressTown>
+		<AddressCounty>Lincs</AddressCounty>
+		<AddressPostCode>PE23 2EJ</AddressPostCode>
+		<PhonePrimary>07747 123470</PhonePrimary>
+		<PhoneSecondary>01790 123408</PhoneSecondary>
+		<PhoneTertiary>01790 123412</PhoneTertiary>
+		<EmailPrimary>page@hotmail.com</EmailPrimary>
+		<EmailSecondary>rod@age.co.uk</EmailSecondary>
+		<EmailTertiary>avery@googlemail.com</EmailTertiary>
+	</Customer>
+</Customers>
