@@ -51,9 +51,36 @@ namespace LaundryManager
             return cnList;        
         }
 
-        //public void (string strItem)
-        //{
+        public List<string> GetSelectedCustomerDetails(string filePath, string customerSelected)
+        {
 
-        //}
+            //lets pull the customer number infor that we want to search for
+            string currentCustomerNumber = customerSelected.Substring(3,customerSelected.IndexOf("-")-4);// get the customer number
+            XmlDocument xmlDocument = new XmlDocument();
+            xmlDocument.Load(filePath);
+            string buildDetailsString = "Customer Number ";
+            XmlElement root = xmlDocument.DocumentElement;
+            XmlNodeList nodes = root.SelectNodes("Customer");
+
+            //create list to hold our information
+            List<string> custInfoList = new List<string>();
+
+            foreach (XmlNode node in nodes)
+            {               
+                if((node.FirstChild.Name.ToString() == "CN") & (node.FirstChild.InnerText == currentCustomerNumber))
+                {
+                    //found the customer so loop through the rest of the nodes getting all the data missing blanks and sorting names out
+                    foreach (XmlNode childNode in node.ChildNodes)
+                    {
+                        custInfoList.Add(childNode.InnerText);                     
+                    }
+                }
+            }
+
+            return custInfoList;
+            
+        }
+
+        
     }
 }

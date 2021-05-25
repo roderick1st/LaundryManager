@@ -23,6 +23,9 @@ namespace LaundryManager
     {
 
         string glob_dataPath = "E:\\c_Sharp_Solutions\\LaundryManager\\LaundryManager\\Data\\";
+        List<string> glob_CurrentCustomerInfo = new List<string>();
+        bool glob_addedAdditionalMessage = false;
+        string glob_EmailMessage = "";
         public MainWindow()
         {
             InitializeComponent();
@@ -45,17 +48,112 @@ namespace LaundryManager
 
         private void ListBoxFindByCustomer_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Debug.WriteLine("Selection changed");
             //Put the names of customers into the select customer box
             FindMatchingCustomers(listBoxFindByCustomer.SelectedItem.ToString(),1);
         }
 
         private void FindMatchingCustomers(string searchData, int typeData)
         {
+            Debug.WriteLine("Customer Selected: " + searchData);
+            if (typeData == 1) //we know there is only one customer so just display that customer then move on to populate the details box
+            {
+                listBoxSelectCustomer.Items.Clear(); //clear the list box
+                listBoxSelectCustomer.Items.Add(searchData); //add the customer selected
+                DisplayMatchingCustomerDetails(searchData); //display the customers data
+            }
+
+            //clear the other windows and info
+            textBlockSendStatus.Text="";
+            textBoxAdditionalMessage.Clear();
+        }
+
+        private void DisplayMatchingCustomerDetails(string selectedCustomer)
+        {
+            CustomerDetailsFile customerDetailsFile = new CustomerDetailsFile();
+            glob_CurrentCustomerInfo = customerDetailsFile.GetSelectedCustomerDetails(glob_dataPath + "CustomerDetails.xml", selectedCustomer);
+
+            string customerInformation = "CN";
+
+            customerInformation = customerInformation + glob_CurrentCustomerInfo[0] + "\r\n"; //customernumber
+            customerInformation = customerInformation + glob_CurrentCustomerInfo[1] + " " + glob_CurrentCustomerInfo[2] + "\r\n"; //first name and last name
+
+            //get the rest through a loop
+            for(int i = 3; i < glob_CurrentCustomerInfo.Count; i++)
+            {
+                customerInformation = customerInformation + glob_CurrentCustomerInfo[i] + "\r\n";
+            }
+
+            textBlockCustomerDetails.Text = customerInformation;
+
+            //clear the listbox
+            listBoxEmailAddress.Items.Clear();
+
+            //load the email address
+            for(int i = 12; i < 15; i++)
+            {
+                if (glob_CurrentCustomerInfo[i].Length > 0)
+                {
+                    listBoxEmailAddress.Items.Add(glob_CurrentCustomerInfo[i]);
+                }
+
+            }
+
+            //select all the emails
+            for (int ii=0;ii<listBoxEmailAddress.Items.Count; ii++)
+            {
+                listBoxEmailAddress.SelectAll();
+            }
+
+            //set the listbox to have focus
+            listBoxEmailAddress.Focus();
+
+            glob_EmailMessage = "Dear " + glob_CurrentCustomerInfo[1] + ", \r\n";
+            glob_EmailMessage = glob_EmailMessage + "\r\n";
+            glob_EmailMessage = glob_EmailMessage + "We pleased to tell you that your laundry has been completed.";
+            glob_EmailMessage = glob_EmailMessage + "\r\n\r\n";
+            glob_EmailMessage = glob_EmailMessage + "Regards, \r\n";
+            glob_EmailMessage = glob_EmailMessage + "\r\n";
+            glob_EmailMessage = glob_EmailMessage + "The Team at Wolds Laundry Services";
+            textBlockMessageToSend.Text = glob_EmailMessage;
+        }
+
+        private void textBoxAdditionalMessage_TextChanged(object sender, EventArgs e)
+        {
+            string newEMailMessage = "";
+            if ((textBoxAdditionalMessage.Text.Length > 0) | (glob_addedAdditionalMessage))//if we have text
+            {
+                if (!glob_addedAdditionalMessage)
+                {
+                    glob_EmailMessage = glob_EmailMessage + "\r\n\r\nADDITIONAL DETAILS\r\n\r\n";
+                    glob_addedAdditionalMessage = true;
+                }             
+                newEMailMessage = textBoxAdditionalMessage.Text;
+                textBlockMessageToSend.Text = glob_EmailMessage + newEMailMessage;
+            }
+            if ((glob_addedAdditionalMessage) & (textBoxAdditionalMessage.Text.Length < 1))//we need to remove the additional message
+            {
+                glob_EmailMessage = glob_EmailMessage.Substring(0, glob_EmailMessage.Length - 26);
+                textBlockMessageToSend.Text = glob_EmailMessage;
+                glob_addedAdditionalMessage = false;
+            }
+        }
+
+        private void buttonSend_Click(object sender, RoutedEventArgs e)
+        {
+            List<string> custEmails = new List<string>();
+            foreach (string cEmail in listBoxEmailAddress.Items)
+            {
+                custEmails.Add(cEmail);
+            }
+            EMailServices eMailServices = new EMailServices();
+            textBlockSendStatus.Text = eMailServices.SendEmail(custEmails, "Your Laundry is Done!", textBlockMessageToSend.Text);
 
         }
 
-
-
+        private void buttonAddCustomer_Click(object sender, RoutedEventArgs e)
+        {
+            AddCustomerForm addCustomerForm = new AddCustomerForm();
+            addCustomerForm.Show();
+        }
     }
 }
