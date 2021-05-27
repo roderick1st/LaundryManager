@@ -22,7 +22,7 @@ namespace LaundryManager
     public partial class MainWindow : Window
     {
 
-        string glob_dataPath = "E:\\c_Sharp_Solutions\\LaundryManager\\LaundryManager\\Data\\";
+        //string glob_dataPath = "E:\\c_Sharp_Solutions\\LaundryManager\\LaundryManager\\Data\\";
         List<string> glob_CurrentCustomerInfo = new List<string>();
         bool glob_addedAdditionalMessage = false;
         string glob_EmailMessage = "";
@@ -35,6 +35,7 @@ namespace LaundryManager
         {
             //entrance for the program
 
+
             //look through the CustomerDetails.xml file and load all customer numbers into the 
             LoadFindByCustomer();
         }
@@ -43,13 +44,16 @@ namespace LaundryManager
         {
             //Pull the customer numbers from the customer file and put in the dropdown box
             CustomerDetailsFile customerDetailsFile = new CustomerDetailsFile();
-            listBoxFindByCustomer.ItemsSource = customerDetailsFile.GetCustomerNumbers(glob_dataPath + "CustomerDetails.xml");            
+            listBoxFindByCustomer.ItemsSource = customerDetailsFile.GetCustomerNumbers(true);            
         }
 
         private void ListBoxFindByCustomer_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             //Put the names of customers into the select customer box
-            FindMatchingCustomers(listBoxFindByCustomer.SelectedItem.ToString(),1);
+            if (listBoxFindByCustomer.SelectedItem != null)
+            {
+                FindMatchingCustomers(listBoxFindByCustomer.SelectedItem.ToString(), 1);
+            }
         }
 
         private void FindMatchingCustomers(string searchData, int typeData)
@@ -70,20 +74,21 @@ namespace LaundryManager
         private void DisplayMatchingCustomerDetails(string selectedCustomer)
         {
             CustomerDetailsFile customerDetailsFile = new CustomerDetailsFile();
-            glob_CurrentCustomerInfo = customerDetailsFile.GetSelectedCustomerDetails(glob_dataPath + "CustomerDetails.xml", selectedCustomer);
+            glob_CurrentCustomerInfo = customerDetailsFile.GetSelectedCustomerDetails(selectedCustomer);
 
             string customerInformation = "CN";
 
             customerInformation = customerInformation + glob_CurrentCustomerInfo[0] + "\r\n"; //customernumber
             customerInformation = customerInformation + glob_CurrentCustomerInfo[1] + " " + glob_CurrentCustomerInfo[2] + "\r\n"; //first name and last name
 
-            //get the rest through a loop
-            for(int i = 3; i < glob_CurrentCustomerInfo.Count; i++)
+            //get the rest through a loop up to line 12
+            for(int i = 3; i < 12; i++)
             {
                 customerInformation = customerInformation + glob_CurrentCustomerInfo[i] + "\r\n";
             }
 
             textBlockCustomerDetails.Text = customerInformation;
+            textBoxCustNotes.Text = glob_CurrentCustomerInfo[16];
 
             //clear the listbox
             listBoxEmailAddress.Items.Clear();
@@ -153,7 +158,25 @@ namespace LaundryManager
         private void buttonAddCustomer_Click(object sender, RoutedEventArgs e)
         {
             AddCustomerForm addCustomerForm = new AddCustomerForm();
-            addCustomerForm.Show();
+            addCustomerForm.CustomerInfoChange += AddCustomerForm_CustomerInfoChange;
+            addCustomerForm.ShowDialog();
+
+            //using (FormOptions formOptions = new FormOptions())
+            //{
+                // passing this in ShowDialog will set the .Owner 
+                // property of the child form
+                //formOptions.ShowDialog(this);
+            //}
+            //In the child form, use this code to pass a value back to the parent:
+
+            //ParentForm parent = (ParentForm)this.Owner;
+            //parent.NotifyMe("whatever");
+
+        }
+
+        private void AddCustomerForm_CustomerInfoChange(bool obj)
+        {
+            LoadFindByCustomer();
         }
     }
 }

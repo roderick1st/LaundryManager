@@ -5,8 +5,71 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LaundryManager"
         mc:Ignorable="d"
-        Title="AddCustomerForm" Height="450" Width="800">
+        Title="AddCustomerForm" Height="780" Width="1200"
+        Loaded="Add_Customer_Window_Loaded">
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="700"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="500"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="CN" FontSize="25" Margin="5 0 2 15"/>
+                    <TextBlock Text="First Name" FontSize="25" Margin="5 0 2 2"/>
+                    <TextBlock Text="Last Name" FontSize="25" Margin="5 0 2 2"/>
+                    <TextBlock Text="Address" FontSize="25" Margin="5 20 2 2" Height="120"/>
+                    <TextBlock Text="Town" FontSize="25" Margin="5 0 2 2"/>
+                    <TextBlock Text="County" FontSize="25" Margin="5 0 2 2"/>
+                    <TextBlock Text="Postcode" FontSize="25" Margin="5 0 2 2"/>
+                    <TextBlock Text="Phone" FontSize="25" Margin="5 20 2 2"/>
+                    <TextBlock Text="Mobile" FontSize="25" Margin="5 0 2 2"/>
+                    <TextBlock Text="Other Phone" FontSize="25" Margin="5 0 2 2"/>
+                    <TextBlock Text="Email" FontSize="25" Margin="5 20 2 2"/>
+                    <TextBlock Text="Email" FontSize="25" Margin="5 0 2 2"/>
+                    <TextBlock Text="Email" FontSize="25" Margin="5 0 2 2"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1">
+                    <ComboBox  x:Name="cbCustomerNumbers" SelectionChanged="cbCustomerNumbers_SelectionChanged" FontSize="25" Height="40" Margin="5 5 2 0"/>
+                    <TextBox x:Name="tbFirstName" Text="" FontSize="25" Margin="5 8 2 0"/>
+                    <TextBox x:Name="tbLastName" Text="" FontSize="25" Margin="5 0 2 2"/>
+                    <TextBox x:Name="tbAddress" Text="" FontSize="25" TextWrapping="Wrap" AcceptsReturn="True" Margin="5 17 2 2" Height="120"/>
+                    <TextBox x:Name="tbTown" Text="" FontSize="25" Margin="5 0 2 2"/>
+                    <TextBox x:Name="tbCounty" Text="Lincolnshire" FontSize="25" Margin="5 1 2 1"/>
+                    <TextBox x:Name="tbPostcode" Text="" FontSize="25" Margin="5 0 2 2"/>
+                    <TextBox x:Name="tbPhone1" Text="" FontSize="25" Margin="5 17 2 0"/>
+                    <TextBox x:Name="tbPhone2" Text="" FontSize="25" Margin="5 0 2 0"/>
+                    <TextBox x:Name="tbPhone3" Text="" FontSize="25" Margin="5 0 2 2"/>
+                    <TextBox x:Name="tbEmail1" Text="" FontSize="25" Margin="5 18 2 0"/>
+                    <TextBox x:Name="tbEmail2" Text="" FontSize="25" Margin="5 0 2 0"/>
+                    <TextBox x:Name="tbEmail3" Text="" FontSize="25" Margin="5 0 2 2"/>
+                </StackPanel>
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <Button x:Name="btnAddAmend" Height="50" Content="Add/Amend" Click="btnAddAmend_Click" FontSize="30" FontWeight="Bold" Margin="2 5 2 0"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1">
+                    <Button x:Name="btnCancel" Click="btnCancel_Click" Height="50" Content="Close" FontSize="30" FontWeight="Bold" Margin="2 5 2 2"/>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+        <StackPanel Grid.Column="1">
+            <Button x:Name="btnActiveCustomer" Content="Active Customer" Height="60" Width="300" FontSize="30" Click="btnActiveCustomer_Click"/>
+            <TextBlock Text="Notes:" FontSize="30" Margin="20 0 0 0"/>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Height="609">
+                  <TextBox x:Name="tbNotes" Text="" AcceptsReturn="True" TextWrapping="Wrap" FontSize="30" Height="2000" Margin="20 0 0 0"/>
+            </ScrollViewer>
+
+        </StackPanel>
     </Grid>
 </Window>
