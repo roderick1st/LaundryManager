@@ -35,6 +35,8 @@ namespace LaundryManager
         {
             //entrance for the program
 
+            //set the window to maximum
+            Application.Current.MainWindow.WindowState = WindowState.Maximized;
 
             //look through the CustomerDetails.xml file and load all customer numbers into the 
             LoadFindByCustomer();
@@ -112,14 +114,24 @@ namespace LaundryManager
             //set the listbox to have focus
             listBoxEmailAddress.Focus();
 
-            glob_EmailMessage = "Dear " + glob_CurrentCustomerInfo[1] + ", \r\n";
-            glob_EmailMessage = glob_EmailMessage + "\r\n";
-            glob_EmailMessage = glob_EmailMessage + "We pleased to tell you that your laundry has been completed.";
-            glob_EmailMessage = glob_EmailMessage + "\r\n\r\n";
-            glob_EmailMessage = glob_EmailMessage + "Regards, \r\n";
-            glob_EmailMessage = glob_EmailMessage + "\r\n";
-            glob_EmailMessage = glob_EmailMessage + "The Team at Wolds Laundry Services";
-            textBlockMessageToSend.Text = glob_EmailMessage;
+
+            //new code to generate message from file
+            Messages newMessage = new Messages();
+            List<string> messageData = newMessage.GetMessage(1);
+
+            glob_EmailMessage = messageData[0] + glob_CurrentCustomerInfo[1];
+            glob_EmailMessage = glob_EmailMessage + messageData[1];
+
+            //generate the main email message
+            //glob_EmailMessage = "Dear " + glob_CurrentCustomerInfo[1] + ", \r\n";
+            //glob_EmailMessage = glob_EmailMessage + "\r\n";
+            //glob_EmailMessage = glob_EmailMessage + "We're pleased to tell you that your laundry has been completed.";
+            //glob_EmailMessage = glob_EmailMessage + "\r\n\r\n";
+            //glob_EmailMessage = glob_EmailMessage + "Regards, \r\n";
+            //glob_EmailMessage = glob_EmailMessage + "\r\n";
+            //glob_EmailMessage = glob_EmailMessage + "The Team at Wolds Laundry Services";
+            
+            textBlockMessageToSend.Text = glob_EmailMessage;    //change the text window
         }
 
         private void textBoxAdditionalMessage_TextChanged(object sender, EventArgs e)
@@ -177,6 +189,11 @@ namespace LaundryManager
         private void AddCustomerForm_CustomerInfoChange(bool obj)
         {
             LoadFindByCustomer();
+        }
+
+        private void listBoxSelectCustomer_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
         }
     }
 }

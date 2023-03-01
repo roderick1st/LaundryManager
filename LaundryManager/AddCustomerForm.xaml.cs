@@ -33,6 +33,8 @@ namespace LaundryManager
 
         private void Add_Customer_Window_Loaded(object sender, RoutedEventArgs e)
         {
+            this.WindowState = WindowState.Maximized;
+
             //load the know customers into the list box
             PopulateComboBox();
         }
@@ -227,6 +229,8 @@ namespace LaundryManager
 
             //clear the form
             ClearTheForm();
+
+            //could do with closing this window as well?
 
 
             //reload the listbox on the main form EVENT

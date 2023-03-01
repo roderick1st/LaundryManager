@@ -79,7 +79,7 @@
                 <TextBlock Text="Find by Customer Number" FontSize="25" Margin="10 10 5 2"/>
                 <ListBox x:Name="listBoxFindByCustomer" FontSize="15" Height="200" Margin="10 0 5 2" SelectionChanged="ListBoxFindByCustomer_SelectionChanged"/>
                 <TextBlock Text="Select Customer" FontSize="25" Margin="10 10 5 2"/>
-                <ListBox x:Name="listBoxSelectCustomer" FontSize="15" Height="160" Margin="10 0 5 2"/>
+                <ListBox x:Name="listBoxSelectCustomer" FontSize="15" Height="160" Margin="10 0 5 2" SelectionChanged="listBoxSelectCustomer_SelectionChanged"/>
                 <Button x:Name="buttonAddCustomer" Content="Edit Customers" FontSize="25" Click="buttonAddCustomer_Click" Margin="40 100 40 0"/>
                 
 

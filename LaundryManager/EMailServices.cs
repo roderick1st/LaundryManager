@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Mail;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -28,8 +30,36 @@ namespace LaundryManager
                 return "Message Sent";
             } catch(Exception e)
             {
-                return "Message sending failed";
+                return getIP();
             }            
+        }
+
+        private string getIP()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            bool correctIP = false;
+
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    if(ip.ToString() == "192.168.17.10")
+                    {
+                        correctIP = true;
+                    }
+                }
+            }
+
+            if(correctIP == true)
+            {
+                return "FAILED: Other EMail Issue";
+            } 
+            else
+            {
+                return "FAILED: IP should be 192.168.17.10";
+            }
+       
+
         }
 
     }
