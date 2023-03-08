@@ -32,8 +32,8 @@ namespace LaundryManager
             foreach (XmlNode node in nodes)
             {
                 
-                foreach (XmlNode childnode in node.ChildNodes)
-                {
+                    foreach (XmlNode childnode in node.ChildNodes)
+                    {
                     switch (childnode.Name)
                     {
                         case "CN":                 
@@ -162,13 +162,13 @@ namespace LaundryManager
             XmlText newPhonePrimaryText = xmlDocument.CreateTextNode(customerDetailsList[9]);
             XmlNode newPhoneSecondaryNode = xmlDocument.CreateNode(XmlNodeType.Element, "PhoneSecondary", null);
             XmlText newPhoneSecondaryText = xmlDocument.CreateTextNode(customerDetailsList[10]);
-            XmlNode newPhoneTertiaryNode = xmlDocument.CreateNode(XmlNodeType.Element, "PhoneTertiary", null);
+            XmlNode newPhoneTertiaryNode = xmlDocument.CreateNode(XmlNodeType.Element, "DeliveryCharge", null);
             XmlText newPhoneTertiaryText = xmlDocument.CreateTextNode(customerDetailsList[11]);
             XmlNode newEmailPrimaryNode = xmlDocument.CreateNode(XmlNodeType.Element, "EmailPrimary", null);
             XmlText newEmailPrimaryText = xmlDocument.CreateTextNode(customerDetailsList[12]);
             XmlNode newEmailSecondaryNode = xmlDocument.CreateNode(XmlNodeType.Element, "EmailSecondary", null);
             XmlText newEmailSecondaryText = xmlDocument.CreateTextNode(customerDetailsList[13]);
-            XmlNode newEmailTertiaryNode = xmlDocument.CreateNode(XmlNodeType.Element, "EmailTertiary", null);
+            XmlNode newEmailTertiaryNode = xmlDocument.CreateNode(XmlNodeType.Element, "PriceStructure", null);
             XmlText newEmailTertiaryText = xmlDocument.CreateTextNode(customerDetailsList[14]);
             XmlNode newActiveNode = xmlDocument.CreateNode(XmlNodeType.Element, "Active", null);
             XmlText newActiveText = xmlDocument.CreateTextNode(customerDetailsList[15]);
@@ -218,5 +218,27 @@ namespace LaundryManager
         }
 
         
+    }
+
+    class CNHandling
+    {
+        public int ExtractCN(string unsortedString) //make sure this does not get string with more than one set of numbers
+        {
+      
+       
+            string number = new(unsortedString.SkipWhile(c => !char.IsDigit(c))
+                                              .TakeWhile(c => char.IsDigit(c))
+                                              .ToArray());
+
+            if(int.TryParse(number, out int returnNumber))
+            {
+                return returnNumber;
+            } else
+            {
+                return 0;
+            }
+
+            
+        }
     }
 }

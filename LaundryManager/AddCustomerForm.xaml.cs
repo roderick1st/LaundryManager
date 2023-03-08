@@ -110,10 +110,10 @@ namespace LaundryManager
             customerDetailsList.Add(tbPostcode.Text);
             customerDetailsList.Add(tbPhone1.Text);
             customerDetailsList.Add(tbPhone2.Text);
-            customerDetailsList.Add(tbPhone3.Text);
+            customerDetailsList.Add(tbDeliveryCharge.Text);
             customerDetailsList.Add(tbEmail1.Text);
             customerDetailsList.Add(tbEmail2.Text);
-            customerDetailsList.Add(tbEmail3.Text);
+            customerDetailsList.Add(tbPriceStructure.Text);
 
             if (btnActiveCustomer.Content.ToString() == glob_btnRetiredContent) //active customer?
             {
@@ -200,10 +200,10 @@ namespace LaundryManager
             customerDetailsList.Add(tbPostcode.Text);
             customerDetailsList.Add(tbPhone1.Text);
             customerDetailsList.Add(tbPhone2.Text);
-            customerDetailsList.Add(tbPhone3.Text);
+            customerDetailsList.Add(tbDeliveryCharge.Text);
             customerDetailsList.Add(tbEmail1.Text);
             customerDetailsList.Add(tbEmail2.Text);
-            customerDetailsList.Add(tbEmail3.Text);
+            customerDetailsList.Add(tbPriceStructure.Text);
 
             if(btnActiveCustomer.Content.ToString() == glob_btnRetiredContent) //active customer?
             {
@@ -272,10 +272,10 @@ namespace LaundryManager
                     tbPostcode.Text = customerDetails[8];
                     tbPhone1.Text = customerDetails[9];
                     tbPhone2.Text = customerDetails[10];
-                    tbPhone3.Text = customerDetails[11];
+                    tbDeliveryCharge.Text = customerDetails[11];
                     tbEmail1.Text = customerDetails[12];
                     tbEmail2.Text = customerDetails[13];
-                    tbEmail3.Text = customerDetails[14];
+                    tbPriceStructure.Text = customerDetails[14];
 
                     if (customerDetails[15] == "yes")
                     {
@@ -307,10 +307,10 @@ namespace LaundryManager
             tbPostcode.Clear();
             tbPhone1.Clear();
             tbPhone2.Clear();
-            tbPhone3.Clear();
+            tbDeliveryCharge.Clear();
             tbEmail1.Clear();
             tbEmail2.Clear();
-            tbEmail3.Clear();
+            tbPriceStructure.Clear();
             tbNotes.Clear();
             btnActiveCustomer.Content = glob_btnActiveContent;
             cbCustomerNumbers.SelectedIndex = 0;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,6 +27,8 @@ namespace LaundryManager
         List<string> glob_CurrentCustomerInfo = new List<string>();
         bool glob_addedAdditionalMessage = false;
         string glob_EmailMessage = "";
+        string glob_CurrentCustomer = "";
+
         public MainWindow()
         {
             InitializeComponent();
@@ -40,6 +43,32 @@ namespace LaundryManager
 
             //look through the CustomerDetails.xml file and load all customer numbers into the 
             LoadFindByCustomer();
+
+            //check we have a laundry directory in the documents folder
+            CheckDirectoryStructure();
+
+        }
+
+        private void CheckDirectoryStructure()
+        {
+            string WorkingDirectoryPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Laundry";
+
+            TestAndCreateDirectory(WorkingDirectoryPath);
+
+            WorkingDirectoryPath += "\\Tickets";
+
+            TestAndCreateDirectory(WorkingDirectoryPath);
+
+        }
+
+        private void TestAndCreateDirectory(string directoryPath)
+        {
+            if (!Directory.Exists(directoryPath))
+            {
+                //no directory lets create it
+                Directory.CreateDirectory(directoryPath);
+            }
+
         }
 
         private void LoadFindByCustomer()
@@ -54,6 +83,7 @@ namespace LaundryManager
             //Put the names of customers into the select customer box
             if (listBoxFindByCustomer.SelectedItem != null)
             {
+                glob_CurrentCustomer = listBoxFindByCustomer.SelectedValue.ToString();
                 FindMatchingCustomers(listBoxFindByCustomer.SelectedItem.ToString(), 1);
             }
         }
@@ -121,15 +151,6 @@ namespace LaundryManager
 
             glob_EmailMessage = messageData[0] + glob_CurrentCustomerInfo[1];
             glob_EmailMessage = glob_EmailMessage + messageData[1];
-
-            //generate the main email message
-            //glob_EmailMessage = "Dear " + glob_CurrentCustomerInfo[1] + ", \r\n";
-            //glob_EmailMessage = glob_EmailMessage + "\r\n";
-            //glob_EmailMessage = glob_EmailMessage + "We're pleased to tell you that your laundry has been completed.";
-            //glob_EmailMessage = glob_EmailMessage + "\r\n\r\n";
-            //glob_EmailMessage = glob_EmailMessage + "Regards, \r\n";
-            //glob_EmailMessage = glob_EmailMessage + "\r\n";
-            //glob_EmailMessage = glob_EmailMessage + "The Team at Wolds Laundry Services";
             
             textBlockMessageToSend.Text = glob_EmailMessage;    //change the text window
         }
@@ -195,5 +216,47 @@ namespace LaundryManager
         {
 
         }
+
+        private void buttonAddJob_Click(object sender, RoutedEventArgs e)
+        {
+
+            //get the currently selected customer
+            //send over the list of customers
+
+            JobSheetsForm jobSheetForm = new JobSheetsForm(glob_CurrentCustomer); //open the job sheet sending the current customer
+            jobSheetForm.ShowDialog();
+
+            
+
+        }
     }
+
+    public class ProgOps
+    {
+        public string StringDateTime(int returnType) //1 = date, 2=time, 3=date & time
+        {
+            var dt = DateTime.Now;
+            string returnString = "";
+
+
+            switch(returnType)
+            {
+                case 1:
+                    returnString = dt.ToString("dd/MMM/yyyy");
+                    break;
+
+                case 2:
+                    returnString = dt.ToString("HH:mm");
+                    break;
+
+                case 3:
+                    returnString = dt.ToString("dd/MMM/yyyy HH:mm");
+                    break;              
+            }
+            
+
+            return returnString;
+        }
+    }
+
 }

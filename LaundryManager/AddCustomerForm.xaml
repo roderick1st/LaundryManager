@@ -29,10 +29,10 @@
                     <TextBlock Text="Postcode" FontSize="25" Margin="5 0 2 2"/>
                     <TextBlock Text="Phone" FontSize="25" Margin="5 20 2 2"/>
                     <TextBlock Text="Mobile" FontSize="25" Margin="5 0 2 2"/>
-                    <TextBlock Text="Other Phone" FontSize="25" Margin="5 0 2 2"/>
+                    <TextBlock Text="Delivery Charge" FontSize="25" Margin="5 0 2 2"/>
                     <TextBlock Text="Email" FontSize="25" Margin="5 20 2 2"/>
                     <TextBlock Text="Email" FontSize="25" Margin="5 0 2 2"/>
-                    <TextBlock Text="Email" FontSize="25" Margin="5 0 2 2"/>
+                    <TextBlock Text="Price Structure" FontSize="25" Margin="5 0 2 2"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1">
                     <ComboBox  x:Name="cbCustomerNumbers" SelectionChanged="cbCustomerNumbers_SelectionChanged" FontSize="25" Height="40" Margin="5 5 2 0"/>
@@ -44,10 +44,10 @@
                     <TextBox x:Name="tbPostcode" Text="" FontSize="25" Margin="5 0 2 2"/>
                     <TextBox x:Name="tbPhone1" Text="" FontSize="25" Margin="5 17 2 0"/>
                     <TextBox x:Name="tbPhone2" Text="" FontSize="25" Margin="5 0 2 0"/>
-                    <TextBox x:Name="tbPhone3" Text="" FontSize="25" Margin="5 0 2 2"/>
+                    <TextBox x:Name="tbDeliveryCharge" Text="" FontSize="25" Margin="5 0 2 2"/>
                     <TextBox x:Name="tbEmail1" Text="" FontSize="25" Margin="5 18 2 0"/>
                     <TextBox x:Name="tbEmail2" Text="" FontSize="25" Margin="5 0 2 0"/>
-                    <TextBox x:Name="tbEmail3" Text="" FontSize="25" Margin="5 0 2 2"/>
+                    <TextBox x:Name="tbPriceStructure" Text="" FontSize="25" Margin="5 0 2 2"/>
                 </StackPanel>
             </Grid>
             <Grid>

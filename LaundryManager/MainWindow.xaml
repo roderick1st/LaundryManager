@@ -90,6 +90,7 @@
                 <TextBlock x:Name="textBlockCustomerDetails" FontSize="15" Text="..." TextWrapping="Wrap" Margin="10 0 5 0" Height="245"/>
                 <TextBlock Text="Customer Notes" FontSize="25" Margin="5 10 5 2"/>
                 <TextBlock x:Name="textBoxCustNotes" FontSize="15"  TextWrapping="WrapWithOverflow"  Height="237" Margin="5 0 5 0"/>
+                <Button x:Name="buttonAddJob" Content="Job Sheets" FontSize="25" Click="buttonAddJob_Click" Margin="40 87 40 0"/>
             </StackPanel>
             <StackPanel Grid.Column="2">
                 <TextBlock Text="Additional Message" FontSize="25" Margin="5 0 0 2"/>

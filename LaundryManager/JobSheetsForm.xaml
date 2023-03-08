@@ -1,0 +1,56 @@
+﻿<Window x:Class="LaundryManager.JobSheetsForm"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LaundryManager"
+        mc:Ignorable="d"
+        Title="JobSheetsForm" Height="780" Width="1200"
+        Loaded="Job_Sheet_Window_Loaded">
+    <Border Padding="10">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="360"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="130"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Customer:" FontSize="25" Margin="10 0 5 2"/>
+                        <TextBlock Text="Tickets:" FontSize="25" Margin="10 200 5 2"/>
+                        <Button x:Name="buttonJSNewTicket" Content="New Ticket" FontSize="20" Click="buttonJSNewTicket_Click" Margin="4 10 4 0" IsEnabled="false"/>
+                        
+
+                    </StackPanel>
+                    <StackPanel Grid.Column="1">
+                        <ListBox x:Name="listBoxJSCustomers" FontSize="15" Height="200" Margin="10 4 5 2" SelectionChanged="listBoxJSCustomers_SelectionChanged" ScrollViewer.HorizontalScrollBarVisibility="Disabled" d:ItemsSource="{d:SampleData ItemCount=5}"/>
+                        <ListBox x:Name="listBoxJSTickets" FontSize="15" Height="200" Margin="10 30 5 2" SelectionChanged="listBoxJSTickets_SelectionChanged" d:ItemsSource="{d:SampleData ItemCount=5}"/>
+                    </StackPanel>
+                </Grid>
+
+
+            </StackPanel>
+            <StackPanel Grid.Column="1">
+                <!--<Grid Grid.Column="1"/>-->
+                <Label x:Name="labelTickedPanelHeader" Content="" HorizontalAlignment="Left" Width="420"/>
+                <DataGrid x:Name="dataGridJSTickets" Height="379" Margin="0 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="420"
+                            HorizontalScrollBarVisibility="Hidden" FontSize="15">
+                    <DataGrid.Columns>
+                        <!--
+                        <DataGridTextColumn Header="Item" Width="*" Binding="{Binding ItemType}"/>
+                        <DataGridTextColumn Header="Quantity" Binding="{Binding ItemQty}"/>
+                        -->
+                    </DataGrid.Columns>
+                </DataGrid>
+                <Button x:Name="buttonJSSaveNewTicket" Content="Save" FontSize="20" Click="buttonJSSaveNewTicket_Click" IsEnabled="false" Width="420" HorizontalAlignment="Left" />
+            </StackPanel>
+
+
+        </Grid>
+    </Border>
+
+</Window>
