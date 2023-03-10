@@ -15,7 +15,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0">
-                <TextBlock Text="Find by Name" FontSize="25" Margin="10 0 5 2"/>
+                <!--<TextBlock Text="Find by Name" FontSize="25" Margin="10 0 5 2"/>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -75,31 +75,40 @@
                         <Button Content="J" Margin="1 0 2 1"/>
                         <Button Content="T" Margin="1 0 2 1"/>
                     </StackPanel>
-                </Grid>
+                </Grid>-->
                 <TextBlock Text="Find by Customer Number" FontSize="25" Margin="10 10 5 2"/>
-                <ListBox x:Name="listBoxFindByCustomer" FontSize="15" Height="200" Margin="10 0 5 2" SelectionChanged="ListBoxFindByCustomer_SelectionChanged"/>
+                <ListBox x:Name="listBoxFindByCustomer" FontSize="15" Height="200" Margin="10 0 5 2" 
+                         Background="Wheat"  SelectionChanged="ListBoxFindByCustomer_SelectionChanged"/>
                 <TextBlock Text="Select Customer" FontSize="25" Margin="10 10 5 2"/>
-                <ListBox x:Name="listBoxSelectCustomer" FontSize="15" Height="160" Margin="10 0 5 2" SelectionChanged="listBoxSelectCustomer_SelectionChanged"/>
-                <Button x:Name="buttonAddCustomer" Content="Edit Customers" FontSize="25" Click="buttonAddCustomer_Click" Margin="40 100 40 0"/>
-                
+                <ListBox x:Name="listBoxSelectCustomer" FontSize="15" Height="160" Margin="10 0 5 2" 
+                         Background="Wheat" SelectionChanged="listBoxSelectCustomer_SelectionChanged"/>
+                <Button x:Name="buttonAddCustomer" Content="Edit Customers" FontSize="25" Click="buttonAddCustomer_Click" 
+                        Background="Wheat" Margin="40 100 40 0"/>
+                <Button x:Name="buttonAddJob" Content="Job Sheets" FontSize="25" Click="buttonAddJob_Click" 
+                        Background="GreenYellow" Margin="40 10 40 0"/>
 
 
             </StackPanel>
             <StackPanel Grid.Column="1">
                 <TextBlock Text="Customer Details" FontSize="25" Margin="5 0 5 2"/>
-                <TextBlock x:Name="textBlockCustomerDetails" FontSize="15" Text="..." TextWrapping="Wrap" Margin="10 0 5 0" Height="245"/>
+                <TextBlock x:Name="textBlockCustomerDetails" FontSize="15" Text="..." TextWrapping="Wrap" 
+                           Background="CornflowerBlue" Margin="10 0 5 0" Height="245"/>
                 <TextBlock Text="Customer Notes" FontSize="25" Margin="5 10 5 2"/>
-                <TextBlock x:Name="textBoxCustNotes" FontSize="15"  TextWrapping="WrapWithOverflow"  Height="237" Margin="5 0 5 0"/>
-                <Button x:Name="buttonAddJob" Content="Job Sheets" FontSize="25" Click="buttonAddJob_Click" Margin="40 87 40 0"/>
+                <TextBlock x:Name="textBoxCustNotes" FontSize="15"  TextWrapping="WrapWithOverflow"  Height="237" 
+                           Background="CornflowerBlue" Margin="5 0 5 0"/>
+        
             </StackPanel>
             <StackPanel Grid.Column="2">
                 <TextBlock Text="Additional Message" FontSize="25" Margin="5 0 0 2"/>
-                <TextBox x:Name="textBoxAdditionalMessage" FontSize="15" TextChanged="textBoxAdditionalMessage_TextChanged" TextWrapping="WrapWithOverflow" AcceptsReturn="True" Height="141" Margin="5 0 10 0"/>
+                <TextBox x:Name="textBoxAdditionalMessage" FontSize="15" TextChanged="textBoxAdditionalMessage_TextChanged" 
+                         Background="CornflowerBlue" TextWrapping="WrapWithOverflow" AcceptsReturn="True" Height="141" Margin="5 0 10 0"/>
                 <ScrollViewer x:Name="svMessage" VerticalScrollBarVisibility="Auto" Height="300">
-                    <TextBlock x:Name="textBlockMessageToSend" FontWeight="Bold" FontSize="15" TextWrapping="Wrap" Width="auto" Height="auto" Margin="5 10 10 0" />
+                    <TextBlock x:Name="textBlockMessageToSend" FontWeight="Bold" FontSize="15" TextWrapping="Wrap" Width="auto" 
+                               Background="DarkOrange" Height="auto" Margin="5 10 10 0" />
                 </ScrollViewer>
                 <ListBox x:Name="listBoxEmailAddress" FontSize="15" Height="100" SelectionMode="Multiple" Margin="0 10 0 0" />
-                <Button x:Name="buttonSend" Content="Send Message" FontSize="25" Click="buttonSend_Click" Margin="40 63 40 0"/>
+                <Button x:Name="buttonSend" Content="Send Message" FontSize="25" Click="buttonSend_Click" 
+                        Background="DarkOrange" Margin="40 63 40 0"/>
                 <TextBlock x:Name="textBlockSendStatus" TextWrapping="Wrap" Height="20" Margin="0 10 0 0" />
                 
 

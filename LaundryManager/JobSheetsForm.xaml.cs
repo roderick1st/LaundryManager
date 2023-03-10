@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -29,6 +30,7 @@ namespace LaundryManager
         string glob_ticketsFilePath = "";
         string glob_ActiveTicket = "";
         string glob_PriceFilePath = "";
+        string glob_ShortCodeFilePath = "";
 
         //bool triggeredByCustomerChange = false;
 
@@ -38,6 +40,9 @@ namespace LaundryManager
         List<string> currentTicketList = new(); //holds current list of tickets to display in the list box
 
         DataTable ticketInformation = new(); //holds descriptions of each ticket
+        DataTable shortCodesData = new(); //holds the current shortcodes data
+
+        bool glob_HandleShorCodeCommit;
 
 
 
@@ -47,7 +52,8 @@ namespace LaundryManager
             globJS_CurrentCustomer = currentCustomer;
             glob_ticketsFilePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Laundry\\Tickets";
             glob_PriceFilePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Laundry\\CurrentPrices.xml";
-            
+            glob_ShortCodeFilePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Laundry\\ShortCodes.xml";
+            glob_HandleShorCodeCommit = true;
         }
 
         private void Job_Sheet_Window_Loaded(object sender, RoutedEventArgs e)
@@ -68,6 +74,117 @@ namespace LaundryManager
 
             //load the tickets list box
             PopulateTicketListBox();
+
+            //populate the short codes data grid
+            PopulateShortCodesDataGrid();
+        }
+
+        private void PopulateShortCodesDataGrid()
+        {
+
+            XmlDocument xmlShortCodeDoc = new();
+            XmlElement root;
+
+            //check for the existense of the short codes file
+            if (!File.Exists(glob_ShortCodeFilePath))
+            {
+                CreateNewXMLFile(glob_ShortCodeFilePath);
+                //XmlDocument xmlShortCodeDoc = new();
+                XmlDeclaration xmlDeclaration = xmlShortCodeDoc.CreateXmlDeclaration("1.0", "UTF-8", null);
+                xmlShortCodeDoc.AppendChild(xmlDeclaration);
+                root = xmlShortCodeDoc.CreateElement(string.Empty, "ShortCodeRoot", string.Empty);
+                xmlShortCodeDoc.AppendChild(root);
+                //XmlElement codes = xmlShortCodeDoc.CreateElement(string.Empty, "Codes", string.Empty);
+                //root.AppendChild(codes);
+                xmlShortCodeDoc.Save(glob_ShortCodeFilePath);
+                //return; //no codes to load
+            }
+
+            //open the document for reading
+            DataSet shortCodeDataSet = new();
+            shortCodeDataSet.ReadXml(glob_ShortCodeFilePath);
+
+            //add the dataset to the datatable
+            if(shortCodeDataSet.Tables.Count > 0)
+            {
+                shortCodesData = shortCodeDataSet.Tables[0];
+                
+            } else
+            {
+                shortCodesData.Columns.Clear(); //clear the data table
+                shortCodesData.Columns.Add("Code");
+                shortCodesData.Columns.Add("Item");
+            }
+
+            dataGridJSShortCodes.ItemsSource = new DataView(shortCodesData);
+            dataGridJSShortCodes.Columns[0].Width = 50;
+            dataGridJSShortCodes.Columns[1].Width = new DataGridLength(1, DataGridLengthUnitType.Star);
+
+
+
+
+        }
+
+        private void dataGridJSShortCodes_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+        {
+
+            //commit the edit to the datatable
+            if (glob_HandleShorCodeCommit)
+            {
+                glob_HandleShorCodeCommit = false;
+                dataGridJSShortCodes.CommitEdit();            
+            }
+            
+        
+            //var text = e.EditAction;
+            
+            //new item added to the data grid so lets save it to the xml file
+            XmlDocument shortcodeDoc = new();
+            shortcodeDoc.Load(glob_ShortCodeFilePath);
+
+            XmlNodeList codesXmlList = shortcodeDoc.GetElementsByTagName("Codes");
+
+            //remove the codes nodes
+            while (codesXmlList.Count > 0)
+            {
+                XmlNode code = codesXmlList[0];
+                code.ParentNode.RemoveChild(code);
+            }
+
+            string shortcodeCode;
+            string shortcodeItem;
+
+            //shortcodeDoc.RemoveAll();
+
+            //insert the new data in the table
+            for (int row = 0; row < shortCodesData.Rows.Count; row++)
+            {
+                //Grab the data from the row
+                shortcodeCode = shortCodesData.Rows[row].Field<string>("Code");
+                shortcodeItem = shortCodesData.Rows[row].Field<string>("Item");
+
+                if((shortcodeCode != "")&&(shortcodeItem != "")) //make sure both fields contain data
+                {
+                    //add them as a new node in the xml file
+                    XmlNode codesNode = shortcodeDoc.CreateNode(XmlNodeType.Element, "Codes", null);
+                    shortcodeDoc.GetElementsByTagName("ShortCodeRoot")[0].AppendChild(codesNode);
+                    XmlNode codeNode = shortcodeDoc.CreateNode(XmlNodeType.Element, "Code", null);
+                    XmlText codeNode_txt = shortcodeDoc.CreateTextNode(shortcodeCode);
+                    codeNode.AppendChild(codeNode_txt);
+                    codesNode.AppendChild(codeNode);
+                    XmlNode itemNode = shortcodeDoc.CreateNode(XmlNodeType.Element, "Item", null);
+                    XmlText itemNode_txt = shortcodeDoc.CreateTextNode(shortcodeItem);
+                    itemNode.AppendChild(itemNode_txt);
+                    codesNode.AppendChild(itemNode);
+                }
+
+            }
+
+            //save the data to the file
+            shortcodeDoc.Save(glob_ShortCodeFilePath);
+
+            glob_HandleShorCodeCommit = true;
+
         }
 
         private void PopulateTicketListBox()
@@ -222,10 +339,6 @@ namespace LaundryManager
             }
         }
 
-        private void buttonJSAddToTicket_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
 
         private void buttonJSNewTicket_Click(object sender, RoutedEventArgs e)
         {
@@ -245,21 +358,7 @@ namespace LaundryManager
 
             filename = glob_ticketsFilePath + "\\TK-" + zeroHolder + filename + ".xml";
 
-            try
-            {
-                using (FileStream fs = File.Create(filename))
-                {
-                    byte[] info = new UTF8Encoding(true).GetBytes("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-                    // Add some information to the file.
-                    fs.Write(info, 0, info.Length);
-                    glob_newTicketNumber++; //increment to the next ticket number
-                }
-            } catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-
-
+            CreateNewXMLFile(filename);
 
             //start building the basic XML
             XmlDocument xmlDocument = new XmlDocument();
@@ -412,8 +511,10 @@ namespace LaundryManager
 
 
             dataGridJSTickets.ItemsSource = new DataView(ticketDataTable);
-            dataGridJSTickets.Columns[0].Width = 340;
-            dataGridJSTickets.Columns[1].Width = 78;
+
+            dataGridJSTickets.Columns[0].IsReadOnly = true;
+            dataGridJSTickets.Columns[0].Width = 315;
+            dataGridJSTickets.Columns[1].Width = new DataGridLength(1, DataGridLengthUnitType.Star);
 
 
 
@@ -449,7 +550,7 @@ namespace LaundryManager
             bool qtyError = false;
 
      
-
+            //find the ticket filepath
             for (int rowc = 0; rowc < ticketInformation.Rows.Count; rowc++)
             {
                 if (ticketInformation.Rows[rowc].Field<string>("TicketNumberString") == glob_ActiveTicket)
@@ -488,6 +589,9 @@ namespace LaundryManager
             {
                 itemDescription = ticketDataTable.Rows[row].Field<string>("Item");
 
+                //lets try to short code the description
+                //TODO
+
                 try //make sure we can convert to a number 
                 {
                     itemCount = Convert.ToInt32(ticketDataTable.Rows[row].Field<string>("Quantity"));
@@ -504,51 +608,54 @@ namespace LaundryManager
                 }
 
                 //create the new item node
-                if(itemDescription.Length != 0)
+                if (itemDescription != null)
                 {
-                    XmlNode itemNode = xmlDocument.CreateNode(XmlNodeType.Element, "Item", null);   //Create new Item Node
-                    XmlNode itemType = xmlDocument.CreateNode(XmlNodeType.Element, "ItemType", null);   //Create new Item Node
-                    XmlText itemType_txt = xmlDocument.CreateTextNode(itemDescription);             //create item description
-                    XmlNode itemQty = xmlDocument.CreateNode(XmlNodeType.Element, "ItemQty", null);   //Create new Item Node
-                    XmlText itemQty_txt = xmlDocument.CreateTextNode(itemCount.ToString());             //create item description
-                    XmlNode itemPrice = xmlDocument.CreateNode(XmlNodeType.Element, "ItemPrice", null);  //Create new Item Node
-                    XmlText itemPrice_txt = xmlDocument.CreateTextNode("0.00");
 
-                    foreach (XmlNode priceNode in priceNodes)
+                    if (itemDescription.Length != 0)
                     {
-                        foreach(XmlNode priceChildNode in priceNode.ChildNodes) //loop each item
-                        {
-                            
-                            foreach(XmlNode priceGrandChildNode in priceChildNode.ChildNodes)
-                            {
-                                if(priceGrandChildNode.Name == "Description")
-                                {
-                                    priceDesc = priceGrandChildNode.InnerText;
-                                }
-                                if(priceGrandChildNode.Name == "Price")
-                                {
-                                    priceAmount = priceGrandChildNode.InnerText;
-                                }                                
-                            }
+                        XmlNode itemNode = xmlDocument.CreateNode(XmlNodeType.Element, "Item", null);   //Create new Item Node
+                        XmlNode itemType = xmlDocument.CreateNode(XmlNodeType.Element, "ItemType", null);   //Create new Item Node
+                        XmlText itemType_txt = xmlDocument.CreateTextNode(itemDescription);             //create item description
+                        XmlNode itemQty = xmlDocument.CreateNode(XmlNodeType.Element, "ItemQty", null);   //Create new Item Node
+                        XmlText itemQty_txt = xmlDocument.CreateTextNode(itemCount.ToString());             //create item description
+                        XmlNode itemPrice = xmlDocument.CreateNode(XmlNodeType.Element, "ItemPrice", null);  //Create new Item Node
+                        XmlText itemPrice_txt = xmlDocument.CreateTextNode("0.00");
 
-                            if(itemDescription == priceDesc)
+                        foreach (XmlNode priceNode in priceNodes)
+                        {
+                            foreach (XmlNode priceChildNode in priceNode.ChildNodes) //loop each item
                             {
-                                itemPrice_txt = xmlDocument.CreateTextNode(priceAmount);            //create item price
-                              
+
+                                foreach (XmlNode priceGrandChildNode in priceChildNode.ChildNodes)
+                                {
+                                    if (priceGrandChildNode.Name == "Description")
+                                    {
+                                        priceDesc = priceGrandChildNode.InnerText;
+                                    }
+                                    if (priceGrandChildNode.Name == "Price")
+                                    {
+                                        priceAmount = priceGrandChildNode.InnerText;
+                                    }
+                                }
+
+                                if (itemDescription == priceDesc)
+                                {
+                                    itemPrice_txt = xmlDocument.CreateTextNode(priceAmount);            //create item price
+
+                                }
                             }
                         }
+
+                        //XmlText itemPrice_txt = xmlDocument.CreateTextNode("10.00");                        //create item price TO DO
+
+                        //add the new data 
+                        //itemsNode.AppendChild(itemNode);
+                        xmlDocument.GetElementsByTagName("Items")[0].AppendChild(itemNode);
+                        itemNode.AppendChild(itemType); itemType.AppendChild(itemType_txt);
+                        itemNode.AppendChild(itemQty); itemQty.AppendChild(itemQty_txt);
+                        itemNode.AppendChild(itemPrice); itemPrice.AppendChild(itemPrice_txt);
                     }
-
-                    //XmlText itemPrice_txt = xmlDocument.CreateTextNode("10.00");                        //create item price TO DO
-
-                    //add the new data 
-                    //itemsNode.AppendChild(itemNode);
-                    xmlDocument.GetElementsByTagName("Items")[0].AppendChild(itemNode);
-                    itemNode.AppendChild(itemType); itemType.AppendChild(itemType_txt);
-                    itemNode.AppendChild(itemQty); itemQty.AppendChild(itemQty_txt);
-                    itemNode.AppendChild(itemPrice); itemPrice.AppendChild(itemPrice_txt);
                 }
-                
             }
 
            //Save the new xml file
@@ -568,5 +675,202 @@ namespace LaundryManager
             listBoxJSCustomers.ItemsSource = customerDetails;
         }
 
+        private void CreateNewXMLFile(string path)
+        {
+            try
+            {
+                using (FileStream fs = File.Create(path))
+                {
+                    byte[] info = new UTF8Encoding(true).GetBytes("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+                    // Add some information to the file.
+                    fs.Write(info, 0, info.Length);
+                    glob_newTicketNumber++; //increment to the next ticket number
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void buttonJSSaveShortCodes_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void dataGridJSShortCodes_DoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            //Row double clicked
+            //get the row that has been clicked on *** VERY MUCH BORROWED CODE ***
+            DependencyObject dep = (DependencyObject)e.OriginalSource;
+
+            // iteratively traverse the visual tree
+            while ((dep != null) && (dep is not DataGridCell) && (dep is not DataGridColumnHeader))
+            {
+                dep = VisualTreeHelper.GetParent(dep);
+            }
+
+            if (dep == null)
+                return;
+
+            if (dep is DataGridColumnHeader)
+            {
+                DataGridColumnHeader columnHeader = dep as DataGridColumnHeader;
+                // do something
+            }
+
+            if (dep is DataGridCell)
+            {
+                DataGridCell cell = dep as DataGridCell;
+
+                // navigate further up the tree
+                while ((dep != null) && (dep is not DataGridRow))
+                {
+                    dep = VisualTreeHelper.GetParent(dep);
+                }
+
+                DataGridRow row = dep as DataGridRow;
+
+                AddClickedItemToTicket(FindRowIndex(row));
+            }
+        
+        
+        
+        }
+
+        private void AddClickedItemToTicket(int row)
+        {
+            if (glob_ActiveTicket == "")
+            {
+                return; //dont try to add to null ticket
+            }
+            //we know the row clicked so lets use the underlying datatable for the information
+            int rowcount = shortCodesData.Rows.Count;
+            if(row >= rowcount)
+            {
+                return; //blank row clicked
+            }
+
+            string shortcodeItem = shortCodesData.Rows[row].Field<string>("Item");
+            int number;
+
+            //scan the datatable for same item
+            for(int scanRow = 0; scanRow < ticketDataTable.Rows.Count; scanRow++)
+            {
+                if(ticketDataTable.Rows[scanRow].Field<string>("Item") == shortcodeItem) //found an item
+                {
+                    //get the current number of items
+                    try
+                    {
+                        number = Convert.ToInt32(ticketDataTable.Rows[scanRow].Field<string>("Quantity"));
+                    } catch
+                    {
+                        number = 0;
+                    }
+
+                    number++;
+                    ticketDataTable.Rows[scanRow][1] = number.ToString();
+                    //ticketDataTable.Rows[scanRow][Field<string>("Quantity")] = number.ToString();
+
+                    //job done so exit
+                    return;
+                }
+            }
+
+            //add the item to the next row of the ticket
+            DataRow newRow;
+            newRow = ticketDataTable.NewRow();
+            newRow["Item"] = shortcodeItem;
+            newRow["Quantity"] = "1";
+
+            ticketDataTable.Rows.Add(newRow);
+
+        }
+
+        private int FindRowIndex(DataGridRow row)
+        {
+            DataGrid dataGrid = ItemsControl.ItemsControlFromItemContainer(row) as DataGrid;
+
+            int index = dataGrid.ItemContainerGenerator.IndexFromContainer(row);
+
+            return index;
+        }
+
+        private void dataGridJSShortCodes_Click(object sender, RoutedEventArgs e)
+        {
+            //Row double clicked
+            //get the row that has been clicked on *** VERY MUCH BORROWED CODE ***
+            DependencyObject dep = (DependencyObject)e.OriginalSource;
+
+            // iteratively traverse the visual tree
+            //while ((dep != null) && (dep is not DataGridCell) && (dep is not DataGridColumnHeader))
+            while ((dep != null) && (dep is not DataGridRowHeader))
+            {
+                dep = VisualTreeHelper.GetParent(dep);
+            }
+
+            if (dep == null)
+                return;
+
+            if (dep is DataGridRowHeader)
+            {
+                DataGridRowHeader rowheader = dep as DataGridRowHeader;
+                while ((dep != null) && (dep is not DataGridRow))
+                {
+                    dep = VisualTreeHelper.GetParent(dep);
+                }
+                DataGridRow row = dep as DataGridRow;
+
+                AddClickedItemToTicket(FindRowIndex(row));
+                
+            }
+
+         
+
+        }
+
+        private void dataGridJSRemoveRow_Click(object sender, RoutedEventArgs e)
+        {
+
+            //Row double clicked
+            //get the row that has been clicked on *** VERY MUCH BORROWED CODE ***
+            DependencyObject dep = (DependencyObject)e.OriginalSource;
+
+            // iteratively traverse the visual tree
+            //while ((dep != null) && (dep is not DataGridCell) && (dep is not DataGridColumnHeader))
+            while ((dep != null) && (dep is not DataGridRowHeader))
+            {
+                dep = VisualTreeHelper.GetParent(dep);
+            }
+
+            if (dep == null)
+                return;
+
+            if (dep is DataGridRowHeader)
+            {
+                DataGridRowHeader rowheader = dep as DataGridRowHeader;
+                while ((dep != null) && (dep is not DataGridRow))
+                {
+                    dep = VisualTreeHelper.GetParent(dep);
+                }
+                DataGridRow row = dep as DataGridRow;
+
+                //AddClickedItemToTicket(FindRowIndex(row));
+                DeleteTicketRow(FindRowIndex(row));
+
+            }
+
+        }
+
+        private void DeleteTicketRow(int row)
+        {
+            if(row < ticketDataTable.Rows.Count)
+            {
+         
+                ticketDataTable.Rows.RemoveAt(row);
+            }
+            
+
+        }
     }
 }

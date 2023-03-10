@@ -11,6 +11,9 @@
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="360"/>
+                <ColumnDefinition Width="421"/>
+                <!--<ColumnDefinition Width="118"/>-->
+                
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0">
@@ -21,32 +24,67 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Customer:" FontSize="25" Margin="10 0 5 2"/>
-                        <TextBlock Text="Tickets:" FontSize="25" Margin="10 200 5 2"/>
-                        <Button x:Name="buttonJSNewTicket" Content="New Ticket" FontSize="20" Click="buttonJSNewTicket_Click" Margin="4 10 4 0" IsEnabled="false"/>
-                        
+                        <TextBlock Text="Tickets:" FontSize="25" Margin="10 225 5 2"/>
+                        <Button x:Name="buttonJSNewTicket" Content="New Ticket" FontSize="20" Click="buttonJSNewTicket_Click" 
+                                Background="GreenYellow" Margin="4 10 4 0" IsEnabled="false"/>
+
 
                     </StackPanel>
                     <StackPanel Grid.Column="1">
-                        <ListBox x:Name="listBoxJSCustomers" FontSize="15" Height="200" Margin="10 4 5 2" SelectionChanged="listBoxJSCustomers_SelectionChanged" ScrollViewer.HorizontalScrollBarVisibility="Disabled" d:ItemsSource="{d:SampleData ItemCount=5}"/>
-                        <ListBox x:Name="listBoxJSTickets" FontSize="15" Height="200" Margin="10 30 5 2" SelectionChanged="listBoxJSTickets_SelectionChanged" d:ItemsSource="{d:SampleData ItemCount=5}"/>
+                        <ListBox x:Name="listBoxJSCustomers" FontSize="15" Height="230" Margin="10 4 5 2" 
+                                 Background="Wheat" SelectionChanged="listBoxJSCustomers_SelectionChanged" ScrollViewer.HorizontalScrollBarVisibility="Disabled" d:ItemsSource="{d:SampleData ItemCount=5}"/>
+                        <ListBox x:Name="listBoxJSTickets" FontSize="15" Height="230" Margin="10 30 5 2" 
+                                 Background="Wheat" SelectionChanged="listBoxJSTickets_SelectionChanged" d:ItemsSource="{d:SampleData ItemCount=5}"/>
                     </StackPanel>
                 </Grid>
 
 
             </StackPanel>
             <StackPanel Grid.Column="1">
-                <!--<Grid Grid.Column="1"/>-->
                 <Label x:Name="labelTickedPanelHeader" Content="" HorizontalAlignment="Left" Width="420"/>
-                <DataGrid x:Name="dataGridJSTickets" Height="379" Margin="0 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="420"
-                            HorizontalScrollBarVisibility="Hidden" FontSize="15">
+                <DataGrid x:Name="dataGridJSTickets" Height="439" Margin="0 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="420"
+                          HorizontalScrollBarVisibility="Hidden" FontSize="15" CanUserResizeRows="False" d:ItemsSource="{d:SampleData}"
+                    RowHeaderWidth="25" HeadersVisibility="All">
+
+                    <DataGrid.RowHeaderStyle>
+                        <Style TargetType="{x:Type DataGridRowHeader}">
+                            <Setter Property="Background" Value="DarkOrange"/>
+                            <Setter Property="BorderThickness"  Value="1"/>
+                            <EventSetter Event="Click" Handler="dataGridJSRemoveRow_Click" />
+                        </Style>
+                    </DataGrid.RowHeaderStyle>
+
+
                     <DataGrid.Columns>
-                        <!--
-                        <DataGridTextColumn Header="Item" Width="*" Binding="{Binding ItemType}"/>
-                        <DataGridTextColumn Header="Quantity" Binding="{Binding ItemQty}"/>
-                        -->
+
+
                     </DataGrid.Columns>
+
                 </DataGrid>
-                <Button x:Name="buttonJSSaveNewTicket" Content="Save" FontSize="20" Click="buttonJSSaveNewTicket_Click" IsEnabled="false" Width="420" HorizontalAlignment="Left" />
+                <Button x:Name="buttonJSSaveNewTicket" Content="Save Ticket" FontSize="20" Click="buttonJSSaveNewTicket_Click" 
+                        Background="GreenYellow" IsEnabled="false" Width="420" HorizontalAlignment="Left" />
+            </StackPanel>
+            <StackPanel Grid.Column="2" Grid.ColumnSpan="2">
+                <Label x:Name="LabelShortCodes" Content="Short Codes" Width="250" HorizontalAlignment="Center" />
+                <DataGrid x:Name="dataGridJSShortCodes" Height="469" Margin="0 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="300"
+                          HorizontalScrollBarVisibility="Hidden" FontSize="15" CanUserResizeRows="False"
+                          RowEditEnding="dataGridJSShortCodes_RowEditEnding" d:ItemsSource="{d:SampleData}"
+                          RowHeaderWidth="25" HeadersVisibility="All">
+                    <DataGrid.RowStyle>
+                        <Style TargetType="{x:Type DataGridRow}">
+                            <EventSetter Event="MouseDoubleClick" Handler="dataGridJSShortCodes_DoubleClick"/>
+                        </Style>
+
+                    </DataGrid.RowStyle>
+                    <DataGrid.RowHeaderStyle>
+                        <Style TargetType="{x:Type DataGridRowHeader}">
+                            <Setter Property="Background" Value="GreenYellow"/>
+                            <Setter Property="BorderThickness"  Value="1"/>
+                            <EventSetter Event="Click" Handler="dataGridJSShortCodes_Click" />
+                        </Style>
+                    </DataGrid.RowHeaderStyle>
+
+                </DataGrid>
             </StackPanel>
 
 
