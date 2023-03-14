@@ -41,6 +41,7 @@ namespace LaundryManager
 
         DataTable ticketInformation = new(); //holds descriptions of each ticket
         DataTable shortCodesData = new(); //holds the current shortcodes data
+        DataTable ticketSettingsDisplay = new(); //for displaying ticket settings in data grid
 
         bool glob_HandleShorCodeCommit;
 
@@ -402,6 +403,9 @@ namespace LaundryManager
             ticketBilled.AppendChild(ticketBilled_txt);
             ticketNode.AppendChild(ticketBilled);
 
+            XmlElement paperReference = xmlDocument.CreateElement(string.Empty, "PaperRef", string.Empty);
+            ticketNode.AppendChild(paperReference);
+
             XmlElement Items = xmlDocument.CreateElement(string.Empty, "Items", string.Empty);
             ticketNode.AppendChild(Items);
 
@@ -480,19 +484,78 @@ namespace LaundryManager
                 ClearTableOnly = true;
             }
 
-            LogCurrentTicket(""); //no ticket to log
+            LogCurrentTicket("","",""); //no ticket to log
 
             if (ClearTableOnly) { return; } //if we were aske to just clear the data table
 
             string selectedTicket = listBoxJSTickets.SelectedItem.ToString();
+            string selectedCustomer = "";
+            string paperRef = "";
+            bool ticketTableFound = false;
 
             DataSet dataSet = new DataSet();
+            DataTable ticketSettings = new();
+            //DataTable ticketSettingsDisplay = new();
+            ticketSettingsDisplay.Reset();
+
+            
 
             XmlReader xmlFile = XmlReader.Create(glob_ticketsFilePath + "\\TK-" + selectedTicket + ".xml", new XmlReaderSettings());
             dataSet.ReadXml(xmlFile);
             xmlFile.Close();
 
-            LogCurrentTicket(selectedTicket);
+            for (int table = 0; table < dataSet.Tables.Count; table++)
+            {
+                if (dataSet.Tables[table].TableName == "Ticket")
+                {
+                    ticketSettings = dataSet.Tables[table];
+                    ticketTableFound = true;
+                    break;
+                }
+            }
+
+            if (ticketTableFound)//build a table
+            {
+                DataColumn headingCol = new();
+                DataColumn settingCol = new();
+
+                string colHeading = "";
+
+                headingCol.ColumnName = "Setting";
+                settingCol.ColumnName = "Value";
+
+                ticketSettingsDisplay.Columns.Add(headingCol);
+                ticketSettingsDisplay.Columns.Add(settingCol);
+
+                for(int col = 0; col < ticketSettings.Columns.Count-1; col++) //extra minus 1 to avoid the items
+                {
+                    DataRow dataRow = ticketSettingsDisplay.NewRow();
+                    colHeading = ticketSettings.Columns[col].ColumnName.ToString();
+                    dataRow["Setting"] = colHeading;
+                    dataRow["Value"] = ticketSettings.Rows[0][col].ToString();
+                    ticketSettingsDisplay.Rows.Add(dataRow);
+                }
+
+                dataGridTicketSettings.ItemsSource = new DataView(ticketSettingsDisplay);
+                dataGridTicketSettings.Columns[0].Width = 150;
+                dataGridTicketSettings.Columns[1].Width = new DataGridLength(1, DataGridLengthUnitType.Star);
+                dataGridTicketSettings.Columns[0].IsReadOnly = true;
+
+
+            }
+
+            //if (dataSet.Tables.Count > 0) //set the Paper Ref text box to hold current data
+            //{
+            //selectedCustomer = "CN-" + dataSet.Tables["Ticket"].Rows[0].Field<string>("CN").ToString();
+            //}
+            if (ticketTableFound)
+            {
+                selectedCustomer = "CN-" + ticketSettings.Rows[0].Field<string>("CN").ToString();
+                paperRef = ticketSettings.Rows[0].Field<string>("PaperRef").ToString();
+            }
+
+            //////////////////////////////////////////////////////////////////////////////////////////
+            LogCurrentTicket(selectedTicket, selectedCustomer, paperRef);
 
             string[] selectedColumns = new[] { "ItemType", "ItemQty" };
             if (dataSet.Tables.Count < 3) // we dont have any items on the ticket so dont try to import them as will error
@@ -505,6 +568,17 @@ namespace LaundryManager
                 ticketDataTable = new DataView(dataSet.Tables[2]).ToTable(false, selectedColumns);
 
             }
+
+            //if(dataSet.Tables.Count > 0) //set the Paper Ref text box to hold current data
+            //{
+                //textBoxJSPaperCodes.Text = dataSet.Tables[0].Rows[0].Field<string>("PaperRef").ToString();
+                
+            //}
+            //if (ticketTableFound)
+            //{
+            //    textBoxJSPaperCodes.Text = ticketSettings.Rows[0].Field<string>("PaperRef").ToString();
+            //}
+
 
             ticketDataTable.Columns["ItemType"].ColumnName = "Item";
             ticketDataTable.Columns["ItemQty"].ColumnName = "Quantity";
@@ -521,7 +595,7 @@ namespace LaundryManager
 
         }
 
-        private void LogCurrentTicket(string TicketNumber)
+        private void LogCurrentTicket(string TicketNumber, string Customer, string paperRef)
         {
 
             glob_ActiveTicket = TicketNumber;
@@ -532,8 +606,16 @@ namespace LaundryManager
                 buttonJSSaveNewTicket.IsEnabled = false;
             } else
             {
-                labelTickedPanelHeader.Content = "Ticket Number : " + TicketNumber;
+                if(paperRef == "")
+                {
+                    labelTickedPanelHeader.Content = Customer + " | " + "Ticket Number : " + TicketNumber;                  
+                } else
+                {
+                    labelTickedPanelHeader.Content = Customer + " | " + "Ticket Number : " + TicketNumber + " | Paper Ticket : " + paperRef;
+                }
+
                 buttonJSSaveNewTicket.IsEnabled = true;
+
             }
 
 
@@ -572,17 +654,65 @@ namespace LaundryManager
                 item.ParentNode.RemoveChild(item);
             }
 
+            //lets add the paper ticket ref
+            //string paperRef = textBoxJSPaperCodes.Text;
+            string currentSettingTitle;
+            string currentSettingDescription;
+            bool nodeFound;
+           
+            XmlNodeList ticketNodeList = xmlDocument.GetElementsByTagName("Ticket");
+
+            for (int row = 0; row < ticketSettingsDisplay.Rows.Count; row++) //loop through the ticket settings
+            {
+                currentSettingTitle = ticketSettingsDisplay.Rows[row][0].ToString();
+                currentSettingDescription = ticketSettingsDisplay.Rows[row][1].ToString();
+                nodeFound = false;
+
+                foreach (XmlNode ticketNode in ticketNodeList)
+                {
+                    foreach (XmlNode ticketChildNode in ticketNode.ChildNodes)
+                    {
+                        if (currentSettingTitle == ticketChildNode.Name)
+                        {
+                            nodeFound = true;
+                            ticketChildNode.InnerText = currentSettingDescription;
+                        }
+
+                    }
+
+                    if (!nodeFound)
+                    {
+                        //create the node
+                        nodeFound = true;
+                        if (currentSettingTitle != "")
+                        {                           
+                            XmlNode newNode = xmlDocument.CreateNode(XmlNodeType.Element, currentSettingTitle, null);
+                            XmlText newNode_txt = xmlDocument.CreateTextNode(currentSettingDescription);
+                            newNode.AppendChild(newNode_txt);
+                            ticketNode.AppendChild(newNode);
+                        }
+                        
+                    }
+
+                }
+
+            }
+
+          
             //load up the pricing for items
             XmlDocument priceDoc = new XmlDocument();
             priceDoc.Load(glob_PriceFilePath);
             XmlElement priceRoot = priceDoc.DocumentElement;
             XmlNodeList priceNodes = priceRoot.SelectNodes("Items");
+            
+            //XmlNodeList ticketList = priceRoot.SelectNodes("Ticket");
 
             string priceDesc = "";
-            string priceAmount = "";
+            string priceAmount = "";  
+
 
             //add the new item nodes
-            string itemDescription = "";
+            string itemDescription;
             int itemCount = 0;
 
             for(int row = 0;  row < ticketDataTable.Rows.Count; row++)
@@ -597,7 +727,8 @@ namespace LaundryManager
                     itemCount = Convert.ToInt32(ticketDataTable.Rows[row].Field<string>("Quantity"));
                     if (!qtyError)
                     {
-                        LogCurrentTicket(glob_ActiveTicket);
+                        /////////////////////////////////////////////////////////////////
+                        LogCurrentTicket(glob_ActiveTicket, globJS_CurrentCustomer, "");
                     }
                     
                 }
