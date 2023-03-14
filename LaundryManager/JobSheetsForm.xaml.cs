@@ -191,6 +191,9 @@ namespace LaundryManager
         private void PopulateTicketListBox()
         {
 
+            //refresh the ticket information held
+            GetTicketFileData();
+
             CNHandling cnHandling = new();
 
             List<string> tempTicketList = new();
@@ -320,7 +323,7 @@ namespace LaundryManager
                             break;
                     }
                 }
-                ticketInformation.Rows.Add(ticketRow); //add the new row of data
+                ticketInformation.Rows.Add(ticketRow); //add the new row of data from the info grid box
 
             }
         }
@@ -509,6 +512,7 @@ namespace LaundryManager
                 if (dataSet.Tables[table].TableName == "Ticket")
                 {
                     ticketSettings = dataSet.Tables[table];
+                    //ticketSettings.Columns.Remove("Ticket_ID");
                     ticketTableFound = true;
                     break;
                 }
@@ -520,6 +524,7 @@ namespace LaundryManager
                 DataColumn settingCol = new();
 
                 string colHeading = "";
+                bool paperRefPresent = false;
 
                 headingCol.ColumnName = "Setting";
                 settingCol.ColumnName = "Value";
@@ -527,31 +532,54 @@ namespace LaundryManager
                 ticketSettingsDisplay.Columns.Add(headingCol);
                 ticketSettingsDisplay.Columns.Add(settingCol);
 
-                for(int col = 0; col < ticketSettings.Columns.Count-1; col++) //extra minus 1 to avoid the items
+                for(int col = 0; col < ticketSettings.Columns.Count; col++)
+                {                  
+                    colHeading = ticketSettings.Columns[col].ColumnName.ToString();
+                    if(colHeading != "Ticket_Id")
+                    {
+                        DataRow dataRow = ticketSettingsDisplay.NewRow();
+                        dataRow["Setting"] = colHeading;
+                        dataRow["Value"] = ticketSettings.Rows[0][col].ToString();
+                        ticketSettingsDisplay.Rows.Add(dataRow);
+                    }
+                    if(colHeading == "PaperRef")
+                    {
+                        paperRefPresent = true;
+                    }
+                    
+                }
+
+                if (!paperRefPresent)
                 {
                     DataRow dataRow = ticketSettingsDisplay.NewRow();
-                    colHeading = ticketSettings.Columns[col].ColumnName.ToString();
-                    dataRow["Setting"] = colHeading;
-                    dataRow["Value"] = ticketSettings.Rows[0][col].ToString();
+                    dataRow["Setting"] = "PaperRef";
+                    dataRow["Value"] = "";
                     ticketSettingsDisplay.Rows.Add(dataRow);
                 }
 
                 dataGridTicketSettings.ItemsSource = new DataView(ticketSettingsDisplay);
                 dataGridTicketSettings.Columns[0].Width = 150;
                 dataGridTicketSettings.Columns[1].Width = new DataGridLength(1, DataGridLengthUnitType.Star);
-                dataGridTicketSettings.Columns[0].IsReadOnly = true;
+                //dataGridTicketSettings.Columns[0].IsReadOnly = true;
 
 
             }
 
-            //if (dataSet.Tables.Count > 0) //set the Paper Ref text box to hold current data
-            //{
-            //selectedCustomer = "CN-" + dataSet.Tables["Ticket"].Rows[0].Field<string>("CN").ToString();
-            //}
             if (ticketTableFound)
             {
                 selectedCustomer = "CN-" + ticketSettings.Rows[0].Field<string>("CN").ToString();
-                paperRef = ticketSettings.Rows[0].Field<string>("PaperRef").ToString();
+                try
+                {
+                    paperRef = ticketSettings.Rows[0].Field<string>("PaperRef").ToString();
+                }catch
+                {
+                    //add the column to the table
+                    //DataColumn PaperPrefCol = new();
+                    //PaperPrefCol.ColumnName = "PaperRef";
+                    //ticketSettings.Columns.Add(PaperPrefCol);
+                    paperRef = "";
+                }
+                
             }
 
             //////////////////////////////////////////////////////////////////////////////////////////
@@ -568,16 +596,6 @@ namespace LaundryManager
                 ticketDataTable = new DataView(dataSet.Tables[2]).ToTable(false, selectedColumns);
 
             }
-
-            //if(dataSet.Tables.Count > 0) //set the Paper Ref text box to hold current data
-            //{
-                //textBoxJSPaperCodes.Text = dataSet.Tables[0].Rows[0].Field<string>("PaperRef").ToString();
-                
-            //}
-            //if (ticketTableFound)
-            //{
-            //    textBoxJSPaperCodes.Text = ticketSettings.Rows[0].Field<string>("PaperRef").ToString();
-            //}
 
 
             ticketDataTable.Columns["ItemType"].ColumnName = "Item";
@@ -685,11 +703,13 @@ namespace LaundryManager
                         //create the node
                         nodeFound = true;
                         if (currentSettingTitle != "")
-                        {                           
+                        {
+                            XmlNode itemsNode = ticketNode.SelectSingleNode("Items");
                             XmlNode newNode = xmlDocument.CreateNode(XmlNodeType.Element, currentSettingTitle, null);
                             XmlText newNode_txt = xmlDocument.CreateTextNode(currentSettingDescription);
                             newNode.AppendChild(newNode_txt);
-                            ticketNode.AppendChild(newNode);
+                            //ticketNode.AppendChild(newNode);
+                            ticketNode.InsertBefore(newNode, itemsNode);
                         }
                         
                     }

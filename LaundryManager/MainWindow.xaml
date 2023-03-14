@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:LaundryManager"
         mc:Ignorable="d"
         Title="Laundry Manager - Wolds Laundry Services" Height="780" Width="1200"
-        Loaded="Window_Loaded">
+        Loaded="Window_Loaded"
+        Background="LightGray">
     <Border Padding="10">
         <Grid>
             <Grid.ColumnDefinitions>

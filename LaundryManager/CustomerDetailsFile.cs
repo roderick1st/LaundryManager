@@ -103,33 +103,60 @@ namespace LaundryManager
         {
 
             bool enableEdit = false;
-            int recordCounter = 0;
+            bool legacyRepairComplete = false;
+            int recordCounter;
 
-            XmlDocument xmlDocument = new XmlDocument();
-            xmlDocument.Load(glob_FilePath);
-
-            XmlElement root = xmlDocument.DocumentElement;
-            XmlNodeList nodes = root.SelectNodes("Customer");
-            foreach (XmlNode node in nodes)//for each customer
+            while (!legacyRepairComplete)
             {
-                foreach (XmlNode childnode in node.ChildNodes)//look at each child node
+                recordCounter = 0;
+                legacyRepairComplete = true;
+                XmlDocument xmlDocument = new XmlDocument();
+                xmlDocument.Load(glob_FilePath);
+
+                XmlElement root = xmlDocument.DocumentElement;
+                XmlNodeList nodes = root.SelectNodes("Customer");
+                foreach (XmlNode node in nodes)//for each customer
                 {
-                    //find the same customer number in the list
-                    if ((childnode.Name == "CN") & (childnode.InnerText == customerDetailsList[0]))
+                    foreach (XmlNode childnode in node.ChildNodes)//look at each child node
                     {
-                        enableEdit = true;                        
+                        //find the same customer number in the list
+                        if ((childnode.Name == "CN") & (childnode.InnerText == customerDetailsList[0]))
+                        {
+                            enableEdit = true;
+                        }
+                        if (enableEdit)
+                        {
+                            childnode.InnerText = customerDetailsList[recordCounter];
+
+                            //deal with legacy issues
+                            if (childnode.Name == "option2")
+                            {
+                                legacyRepairComplete = false;
+                                XmlNode replacementNode = xmlDocument.CreateElement(string.Empty, "PriceStructure", string.Empty);
+                                replacementNode.InnerXml = childnode.InnerXml; //copy the contents
+                                node.InsertBefore(replacementNode, childnode);
+                                node.RemoveChild(childnode);
+
+                            }
+                            if (childnode.Name == "option3")
+                            {
+                                legacyRepairComplete = false;
+                                XmlNode replacementNode = xmlDocument.CreateElement(string.Empty, "DeliveryCharge", string.Empty);
+                                replacementNode.InnerXml = childnode.InnerXml; //copy the contents
+                                node.InsertBefore(replacementNode, childnode);
+                                node.RemoveChild(childnode);
+
+                            }
+
+                            recordCounter++;
+                        }
+
                     }
-                    if (enableEdit)
-                    {
-                        childnode.InnerText = customerDetailsList[recordCounter];
-                        recordCounter++;
-                    }
-                    
+                    enableEdit = false; //dont keep editing past the one we want to edit
                 }
-                enableEdit = false; //dont keep editing past the one we want to edit
-            }
-            //save the file
-            xmlDocument.Save(glob_FilePath);
+                //save the file
+                xmlDocument.Save(glob_FilePath);
+        }
         }
 
         public void AddNewCustomer(List<string> customerDetailsList)
@@ -162,22 +189,22 @@ namespace LaundryManager
             XmlText newPhonePrimaryText = xmlDocument.CreateTextNode(customerDetailsList[9]);
             XmlNode newPhoneSecondaryNode = xmlDocument.CreateNode(XmlNodeType.Element, "PhoneSecondary", null);
             XmlText newPhoneSecondaryText = xmlDocument.CreateTextNode(customerDetailsList[10]);
-            XmlNode newPhoneTertiaryNode = xmlDocument.CreateNode(XmlNodeType.Element, "DeliveryCharge", null);
+            XmlNode newPhoneTertiaryNode = xmlDocument.CreateNode(XmlNodeType.Element, "PhoneTertiary", null);
             XmlText newPhoneTertiaryText = xmlDocument.CreateTextNode(customerDetailsList[11]);
             XmlNode newEmailPrimaryNode = xmlDocument.CreateNode(XmlNodeType.Element, "EmailPrimary", null);
             XmlText newEmailPrimaryText = xmlDocument.CreateTextNode(customerDetailsList[12]);
             XmlNode newEmailSecondaryNode = xmlDocument.CreateNode(XmlNodeType.Element, "EmailSecondary", null);
             XmlText newEmailSecondaryText = xmlDocument.CreateTextNode(customerDetailsList[13]);
-            XmlNode newEmailTertiaryNode = xmlDocument.CreateNode(XmlNodeType.Element, "PriceStructure", null);
+            XmlNode newEmailTertiaryNode = xmlDocument.CreateNode(XmlNodeType.Element, "EmailTertiary", null);
             XmlText newEmailTertiaryText = xmlDocument.CreateTextNode(customerDetailsList[14]);
             XmlNode newActiveNode = xmlDocument.CreateNode(XmlNodeType.Element, "Active", null);
             XmlText newActiveText = xmlDocument.CreateTextNode(customerDetailsList[15]);
             XmlNode newNotesNode = xmlDocument.CreateNode(XmlNodeType.Element, "Notes", null);
             XmlText newNotesText = xmlDocument.CreateTextNode(customerDetailsList[16]);
-            XmlNode newoption2Node = xmlDocument.CreateNode(XmlNodeType.Element, "option2", null);
-            XmlText newoption2Text = xmlDocument.CreateTextNode(customerDetailsList[17]);
-            XmlNode newoption3Node = xmlDocument.CreateNode(XmlNodeType.Element, "option3", null);
-            XmlText newoption3Text = xmlDocument.CreateTextNode(customerDetailsList[18]);
+            XmlNode newPriceStructureNode = xmlDocument.CreateNode(XmlNodeType.Element, "PriceStructure", null);
+            XmlText newPriceStructureText = xmlDocument.CreateTextNode(customerDetailsList[17]);
+            XmlNode newDeliveryChargeNode = xmlDocument.CreateNode(XmlNodeType.Element, "DeliveryCharge", null);
+            XmlText newDeliveryChargeText = xmlDocument.CreateTextNode(customerDetailsList[18]);
             XmlNode newoption4Node = xmlDocument.CreateNode(XmlNodeType.Element, "option4", null);
             XmlText newoption4Text = xmlDocument.CreateTextNode(customerDetailsList[19]);
             XmlNode newoption5Node = xmlDocument.CreateNode(XmlNodeType.Element, "option5", null);
@@ -203,8 +230,8 @@ namespace LaundryManager
             newCustomerNode.AppendChild(newEmailTertiaryNode); newEmailTertiaryNode.AppendChild(newEmailTertiaryText);
             newCustomerNode.AppendChild(newActiveNode); newActiveNode.AppendChild(newActiveText);
             newCustomerNode.AppendChild(newNotesNode); newNotesNode.AppendChild(newNotesText);
-            newCustomerNode.AppendChild(newoption2Node); newoption2Node.AppendChild(newoption2Text);
-            newCustomerNode.AppendChild(newoption3Node); newoption3Node.AppendChild(newoption3Text);
+            newCustomerNode.AppendChild(newPriceStructureNode); newPriceStructureNode.AppendChild(newPriceStructureText);
+            newCustomerNode.AppendChild(newDeliveryChargeNode); newDeliveryChargeNode.AppendChild(newDeliveryChargeText);
             newCustomerNode.AppendChild(newoption4Node); newoption4Node.AppendChild(newoption4Text);
             newCustomerNode.AppendChild(newoption5Node); newoption5Node.AppendChild(newoption5Text);
             newCustomerNode.AppendChild(newoption6Node); newoption6Node.AppendChild(newoption6Text);

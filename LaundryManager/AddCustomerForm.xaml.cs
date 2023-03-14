@@ -47,6 +47,16 @@ namespace LaundryManager
             customerNumbersList.Insert(0, glob_TopComboBoxOption);
             cbCustomerNumbers.ItemsSource = customerNumbersList;
             cbCustomerNumbers.SelectedItem = glob_TopComboBoxOption;
+
+            //set the button
+            if (btnActiveCustomer.Content.ToString() == glob_btnActiveContent)
+            {
+                btnActiveCustomer.Background = Brushes.GreenYellow;
+            }
+            else
+            {
+                btnActiveCustomer.Background = Brushes.LightGray;
+            }
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
@@ -110,10 +120,10 @@ namespace LaundryManager
             customerDetailsList.Add(tbPostcode.Text);
             customerDetailsList.Add(tbPhone1.Text);
             customerDetailsList.Add(tbPhone2.Text);
-            customerDetailsList.Add(tbDeliveryCharge.Text);
+            customerDetailsList.Add(tbPhone3.Text);
             customerDetailsList.Add(tbEmail1.Text);
             customerDetailsList.Add(tbEmail2.Text);
-            customerDetailsList.Add(tbPriceStructure.Text);
+            customerDetailsList.Add(tbEmail3.Text);
 
             if (btnActiveCustomer.Content.ToString() == glob_btnRetiredContent) //active customer?
             {
@@ -125,8 +135,8 @@ namespace LaundryManager
             }
 
             customerDetailsList.Add(notes);
-            customerDetailsList.Add(""); //option 2
-            customerDetailsList.Add(""); //option 3
+            customerDetailsList.Add(tbPriceStructure.Text); //option 2 - Price Structure
+            customerDetailsList.Add(tbDeliveryCharge.Text); //option 3 - Delivery Charge
             customerDetailsList.Add(""); //option 4
             customerDetailsList.Add(""); //option 5
             customerDetailsList.Add(""); //option 6
@@ -200,10 +210,10 @@ namespace LaundryManager
             customerDetailsList.Add(tbPostcode.Text);
             customerDetailsList.Add(tbPhone1.Text);
             customerDetailsList.Add(tbPhone2.Text);
-            customerDetailsList.Add(tbDeliveryCharge.Text);
+            customerDetailsList.Add(tbPhone3.Text);
             customerDetailsList.Add(tbEmail1.Text);
             customerDetailsList.Add(tbEmail2.Text);
-            customerDetailsList.Add(tbPriceStructure.Text);
+            customerDetailsList.Add(tbEmail3.Text);
 
             if(btnActiveCustomer.Content.ToString() == glob_btnRetiredContent) //active customer?
             {
@@ -215,8 +225,8 @@ namespace LaundryManager
             }
 
             customerDetailsList.Add(notes);
-            customerDetailsList.Add(""); //option 2
-            customerDetailsList.Add(""); //option 3
+            customerDetailsList.Add(tbPriceStructure.Text); //option 2 - Price Structure
+            customerDetailsList.Add(tbDeliveryCharge.Text); //option 3 - Delivery Charge
             customerDetailsList.Add(""); //option 4
             customerDetailsList.Add(""); //option 5
             customerDetailsList.Add(""); //option 6
@@ -245,10 +255,12 @@ namespace LaundryManager
             if (btnActiveCustomer.Content.ToString() == glob_btnActiveContent)
             {
                 btnActiveCustomer.Content = glob_btnRetiredContent;
+                btnActiveCustomer.Background = Brushes.DimGray;
             }
             else
             {
                 btnActiveCustomer.Content = glob_btnActiveContent;
+                btnActiveCustomer.Background = Brushes.GreenYellow;
             }
         }
 
@@ -272,10 +284,12 @@ namespace LaundryManager
                     tbPostcode.Text = customerDetails[8];
                     tbPhone1.Text = customerDetails[9];
                     tbPhone2.Text = customerDetails[10];
-                    tbDeliveryCharge.Text = customerDetails[11];
+                    tbPhone3.Text = customerDetails[11];
+                    
                     tbEmail1.Text = customerDetails[12];
                     tbEmail2.Text = customerDetails[13];
-                    tbPriceStructure.Text = customerDetails[14];
+                    tbEmail3.Text = customerDetails[14];
+                    
 
                     if (customerDetails[15] == "yes")
                     {
@@ -287,6 +301,9 @@ namespace LaundryManager
                     }
 
                     tbNotes.Text = customerDetails[16];
+                    tbPriceStructure.Text = customerDetails[17];
+                    tbDeliveryCharge.Text = customerDetails[18];
+                    
                 }
                 else
                 {
@@ -307,11 +324,15 @@ namespace LaundryManager
             tbPostcode.Clear();
             tbPhone1.Clear();
             tbPhone2.Clear();
+            tbPhone3.Clear();
             tbDeliveryCharge.Clear();
             tbEmail1.Clear();
             tbEmail2.Clear();
+            tbEmail3.Clear();
             tbPriceStructure.Clear();
             tbNotes.Clear();
+            tbDeliveryCharge.Clear();
+            tbPriceStructure.Clear();
             btnActiveCustomer.Content = glob_btnActiveContent;
             cbCustomerNumbers.SelectedIndex = 0;
         }

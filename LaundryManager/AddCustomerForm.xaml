@@ -6,17 +6,20 @@
         xmlns:local="clr-namespace:LaundryManager"
         mc:Ignorable="d"
         Title="AddCustomerForm" Height="780" Width="1200"
-        Loaded="Add_Customer_Window_Loaded">
+        Loaded="Add_Customer_Window_Loaded"
+        Background="LightGray">
+    
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="700"/>
+            <ColumnDefinition Width="500"/>
+            <ColumnDefinition Width="400"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Column="0">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="200"/>
-                    <ColumnDefinition Width="500"/>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="300"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
@@ -29,25 +32,27 @@
                     <TextBlock Text="Postcode" FontSize="25" Margin="5 0 2 2"/>
                     <TextBlock Text="Phone" FontSize="25" Margin="5 20 2 2"/>
                     <TextBlock Text="Mobile" FontSize="25" Margin="5 0 2 2"/>
-                    <TextBlock Text="Delivery Charge" FontSize="25" Margin="5 0 2 2"/>
+                    <TextBlock Text="Other" FontSize="25" Margin="5 0 2 2"/>
                     <TextBlock Text="Email" FontSize="25" Margin="5 20 2 2"/>
                     <TextBlock Text="Email" FontSize="25" Margin="5 0 2 2"/>
-                    <TextBlock Text="Price Structure" FontSize="25" Margin="5 0 2 2"/>
+                    <TextBlock Text="Email" FontSize="25" Margin="5 0 2 2"/>
+                    
                 </StackPanel>
                 <StackPanel Grid.Column="1">
-                    <ComboBox  x:Name="cbCustomerNumbers" SelectionChanged="cbCustomerNumbers_SelectionChanged" FontSize="25" Height="40" Margin="5 5 2 0"/>
-                    <TextBox x:Name="tbFirstName" Text="" FontSize="25" Margin="5 8 2 0"/>
-                    <TextBox x:Name="tbLastName" Text="" FontSize="25" Margin="5 0 2 2"/>
-                    <TextBox x:Name="tbAddress" Text="" FontSize="25" TextWrapping="Wrap" AcceptsReturn="True" Margin="5 17 2 2" Height="120"/>
-                    <TextBox x:Name="tbTown" Text="" FontSize="25" Margin="5 0 2 2"/>
-                    <TextBox x:Name="tbCounty" Text="Lincolnshire" FontSize="25" Margin="5 1 2 1"/>
-                    <TextBox x:Name="tbPostcode" Text="" FontSize="25" Margin="5 0 2 2"/>
-                    <TextBox x:Name="tbPhone1" Text="" FontSize="25" Margin="5 17 2 0"/>
-                    <TextBox x:Name="tbPhone2" Text="" FontSize="25" Margin="5 0 2 0"/>
-                    <TextBox x:Name="tbDeliveryCharge" Text="" FontSize="25" Margin="5 0 2 2"/>
-                    <TextBox x:Name="tbEmail1" Text="" FontSize="25" Margin="5 18 2 0"/>
-                    <TextBox x:Name="tbEmail2" Text="" FontSize="25" Margin="5 0 2 0"/>
-                    <TextBox x:Name="tbPriceStructure" Text="" FontSize="25" Margin="5 0 2 2"/>
+                    <ComboBox  x:Name="cbCustomerNumbers" SelectionChanged="cbCustomerNumbers_SelectionChanged" FontSize="25" Height="40" Margin="5 2 2 0" Background="Wheat"/>
+                    <TextBox x:Name="tbFirstName" Text="" FontSize="25" Margin="5 8 2 0" Background="Wheat"/>
+                    <TextBox x:Name="tbLastName" Text="" FontSize="25" Margin="5 2 2 0" Background="Wheat"/>
+                    <TextBox x:Name="tbAddress" Text="" FontSize="25" TextWrapping="Wrap" AcceptsReturn="True" Margin="5 17 2 0" Height="120" Background="Wheat"/>
+                    <TextBox x:Name="tbTown" Text="" FontSize="25" Margin="5 2 2 0" Background="Wheat"/>
+                    <TextBox x:Name="tbCounty" Text="Lincolnshire" FontSize="25" Margin="5 2 2 0" Background="Wheat"/>
+                    <TextBox x:Name="tbPostcode" Text="" FontSize="25" Margin="5 2 2 0" Background="Wheat"/>
+                    <TextBox x:Name="tbPhone1" Text="" FontSize="25" Margin="5 17 2 0" Background="Wheat"/>
+                    <TextBox x:Name="tbPhone2" Text="" FontSize="25" Margin="5 2 2 0" Background="Wheat"/>
+                    <TextBox x:Name="tbPhone3" Text="" FontSize="25" Margin="5 2 2 0" Background="Wheat"/>
+                    <TextBox x:Name="tbEmail1" Text="" FontSize="25" Margin="5 18 2 0" Background="Wheat"/>
+                    <TextBox x:Name="tbEmail2" Text="" FontSize="25" Margin="5 2 2 0" Background="Wheat"/>
+                    <TextBox x:Name="tbEmail3" Text="" FontSize="25" Margin="5 2 2 0" Background="Wheat"/>
+                    
                 </StackPanel>
             </Grid>
             <Grid>
@@ -67,9 +72,15 @@
             <Button x:Name="btnActiveCustomer" Content="Active Customer" Height="60" Width="300" FontSize="30" Click="btnActiveCustomer_Click"/>
             <TextBlock Text="Notes:" FontSize="30" Margin="20 0 0 0"/>
             <ScrollViewer VerticalScrollBarVisibility="Auto" Height="609">
-                  <TextBox x:Name="tbNotes" Text="" AcceptsReturn="True" TextWrapping="Wrap" FontSize="30" Height="2000" Margin="20 0 0 0"/>
+                <TextBox x:Name="tbNotes" Text="" AcceptsReturn="True" TextWrapping="Wrap" FontSize="30" Height="2000" 
+                         Background="Wheat" Margin="20 0 0 0"/>
             </ScrollViewer>
-
+        </StackPanel>
+        <StackPanel Grid.Column="2">
+            <TextBlock Text="Price Structure" FontSize="25" Margin="5 0 2 2"/>
+            <TextBox x:Name="tbPriceStructure" Text="" FontSize="25" Margin="5 2 2 20" Background="Wheat"/>
+            <TextBlock Text="Delivery Charge" FontSize="25" Margin="5 0 2 2"/>
+            <TextBox x:Name="tbDeliveryCharge" Text="" FontSize="25" Margin="5 2 2 0" Background="Wheat"/>
         </StackPanel>
     </Grid>
 </Window>
