@@ -1,0 +1,24 @@
+﻿<Window x:Class="LaundryManager.BackupForm"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LaundryManager"
+        mc:Ignorable="d"
+        Title="BackupForm" Height="450" Width="220"
+        Loaded="Backup_Window_Loaded">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0">
+            <Label Content="Backup Drive:" Margin="10,10,10,2"/>
+            <ListBox x:Name="bkListBoxDrives" SelectionChanged="bkListBoxDrives_SelectionChanged" Margin="10,0,10,10"/>
+            <Button x:Name="bkButtonBackup" Content="Backup" Click="bkButtonBackup_Click" IsEnabled="False" Height="100" Margin="10,10,10,10"/>
+        </StackPanel>
+
+
+    </Grid>
+</Window>

@@ -87,6 +87,10 @@
                         Background="Wheat" Margin="40 100 40 0"/>
                 <Button x:Name="buttonAddJob" Content="Job Sheets" FontSize="25" Click="buttonAddJob_Click" 
                         Background="GreenYellow" Margin="40 10 40 0"/>
+                <Button x:Name="buttonEmailBilling" Content="EMail Billing Sheets" FontSize="25" Click="buttonEmailBilling_Click" 
+                        Background="orange" Margin="40 10 40 0"/>
+                <Button x:Name="buttonBackup" Content="Backup" FontSize="25" Click="buttonBackup_Click" 
+                        Background="BlueViolet" Margin="40 10 40 0"/>
 
 
             </StackPanel>
