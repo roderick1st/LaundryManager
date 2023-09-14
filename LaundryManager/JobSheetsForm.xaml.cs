@@ -406,6 +406,11 @@ namespace LaundryManager
             ticketBilled.AppendChild(ticketBilled_txt);
             ticketNode.AppendChild(ticketBilled);
 
+            XmlElement DeliveryCount = xmlDocument.CreateElement(string.Empty, "DeliveryCount", string.Empty);
+            XmlText DeliveryCount_txt = xmlDocument.CreateTextNode("0");
+            DeliveryCount.AppendChild(DeliveryCount_txt);
+            ticketNode.AppendChild(DeliveryCount);
+
             XmlElement paperReference = xmlDocument.CreateElement(string.Empty, "PaperRef", string.Empty);
             ticketNode.AppendChild(paperReference);
 
@@ -525,6 +530,7 @@ namespace LaundryManager
 
                 string colHeading = "";
                 bool paperRefPresent = false;
+                bool deliveryFound = false;
 
                 headingCol.ColumnName = "Setting";
                 settingCol.ColumnName = "Value";
@@ -546,7 +552,29 @@ namespace LaundryManager
                     {
                         paperRefPresent = true;
                     }
+
+                    if(colHeading == "DeliveryCount")
+                    {
+                        deliveryFound = true;
+                        int deliveryCount = 0;
+                        try
+                        {
+                            deliveryCount = int.Parse(ticketSettings.Rows[0][col].ToString());
+                        }
+                        catch
+                        {
+                            deliveryCount = 0;
+                        }
+
+                        DelTextBox.Text = deliveryCount.ToString();
+                    }
                     
+                }
+
+                //Set the delivery counter to 0 if there is no delivery count stored in the ticket
+                if (!deliveryFound)
+                {
+                    DelTextBox.Text = "0";
                 }
 
                 if (!paperRefPresent)
@@ -560,8 +588,6 @@ namespace LaundryManager
                 dataGridTicketSettings.ItemsSource = new DataView(ticketSettingsDisplay);
                 dataGridTicketSettings.Columns[0].Width = 150;
                 dataGridTicketSettings.Columns[1].Width = new DataGridLength(1, DataGridLengthUnitType.Star);
-                //dataGridTicketSettings.Columns[0].IsReadOnly = true;
-
 
             }
 
@@ -677,9 +703,42 @@ namespace LaundryManager
             string currentSettingTitle;
             string currentSettingDescription;
             bool nodeFound;
-           
+            bool deliveryNodeFound = false;
+            //string currentSettingDescriptionToInsert;
+
+
             XmlNodeList ticketNodeList = xmlDocument.GetElementsByTagName("Ticket");
 
+            //string deliveryCount = DelTextBox.Text;
+
+            //loop through the ticket nodes looking for the delivery node
+            foreach (XmlNode ticketNode in ticketNodeList)
+            {
+                foreach (XmlNode ticketChildNode in ticketNode.ChildNodes)
+                {
+                    if (ticketChildNode.Name == "DeliveryCount") //node exists in the ticket
+                    {
+                        ticketChildNode.InnerText = DelTextBox.Text;
+                        deliveryNodeFound = true;
+                        break;
+                    }
+                }
+
+                if (!deliveryNodeFound) //no delivery node exists so create it.
+                {
+                    XmlNode itemsNode = ticketNode.SelectSingleNode("Items");
+                    XmlNode newNode = xmlDocument.CreateNode(XmlNodeType.Element, "DeliveryCount", null);
+                    XmlText newNode_txt = xmlDocument.CreateTextNode(DelTextBox.Text);
+                    newNode.AppendChild(newNode_txt);
+                    ticketNode.InsertBefore(newNode, itemsNode);
+                    break;
+                }
+
+            }
+
+            
+
+            //loop through the ticket settings and add or change the ticket settings
             for (int row = 0; row < ticketSettingsDisplay.Rows.Count; row++) //loop through the ticket settings
             {
                 currentSettingTitle = ticketSettingsDisplay.Rows[row][0].ToString();
@@ -693,7 +752,14 @@ namespace LaundryManager
                         if (currentSettingTitle == ticketChildNode.Name)
                         {
                             nodeFound = true;
-                            ticketChildNode.InnerText = currentSettingDescription;
+                            if(currentSettingTitle != "DeliveryCount")
+                            {
+                               ticketChildNode.InnerText = currentSettingDescription; 
+                            } else
+                            {
+                                //dont do anything as we have already sorted out deliverys to bill
+                            }
+                            
                         }
 
                     }
@@ -702,6 +768,7 @@ namespace LaundryManager
                     {
                         //create the node
                         nodeFound = true;
+
                         if (currentSettingTitle != "")
                         {
                             XmlNode itemsNode = ticketNode.SelectSingleNode("Items");

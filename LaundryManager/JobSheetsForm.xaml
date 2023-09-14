@@ -12,8 +12,8 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="360"/>
                 <ColumnDefinition Width="421"/>
-                <ColumnDefinition Width="118"/>
-
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0">
@@ -68,7 +68,7 @@
             <!--<Label x:Name="LabelPaperCodes" Content="Paper Code :" Width="77" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2"/>
             <TextBox x:Name="textBoxJSPaperCodes" Width="182" HorizontalAlignment="Left" Grid.Column="3" Margin="0 4 0 0"
                      TextWrapping="NoWrap" AcceptsReturn="False" Height="20" VerticalAlignment="Top"/>-->
-            <StackPanel Grid.Column="2" Grid.ColumnSpan="2">
+            <StackPanel Grid.Column="2" Grid.ColumnSpan="3">
                 <DataGrid x:Name="dataGridJSShortCodes" Height="469" Margin="0 26 0 0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="300"
                           HorizontalScrollBarVisibility="Hidden" FontSize="15" CanUserResizeRows="False"
                           RowEditEnding="dataGridJSShortCodes_RowEditEnding" d:ItemsSource="{d:SampleData}"
@@ -87,11 +87,20 @@
                         </Style>
                     </DataGrid.RowHeaderStyle>
                 </DataGrid>
-                <DataGrid x:Name="dataGridTicketSettings" Height="220" HorizontalAlignment="Left" VerticalAlignment="Top" Width="300"
+            </StackPanel>
+            <StackPanel Grid.Column="2" Grid.ColumnSpan="1"  Margin="0 496 0 0">
+                <Label Content="Deliverys To Bill:" Height="40" Width="300" FontSize="20" HorizontalAlignment="Left" />
+            </StackPanel>
+            <StackPanel Grid.Column="3" Margin="0 496 0 0">
+                <TextBox x:Name="DelTextBox" FontSize="20" Text="0" Margin="0 5 0 0" Width="40" HorizontalAlignment="Left"/>
+            </StackPanel>
+            <StackPanel Grid.Column="2" Grid.ColumnSpan="3" Margin="0 535 0 0">
+                <DataGrid x:Name="dataGridTicketSettings" Height="180" HorizontalAlignment="Left" VerticalAlignment="Top" Width="300"
                           HorizontalScrollBarVisibility="Hidden" FontSize="15" d:ItemsSource="{d:SampleData}"
                           Foreground="OrangeRed">
                     
                 </DataGrid>
+                
             </StackPanel>
 
 

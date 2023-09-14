@@ -135,9 +135,9 @@ namespace LaundryManager
             }
 
             customerDetailsList.Add(notes);
-            customerDetailsList.Add(tbPriceStructure.Text); //option 2 - Price Structure
-            customerDetailsList.Add(tbDeliveryCharge.Text); //option 3 - Delivery Charge
-            customerDetailsList.Add(""); //option 4
+            customerDetailsList.Add(tbDiscountPercent.Text); //option 2 - Discount Price
+            customerDetailsList.Add(tbDiscountStartAmount.Text); //option 3 - discount to start amount
+            customerDetailsList.Add(tbDeliveryCharge.Text); //option 4 - Delivery Charge           
             customerDetailsList.Add(""); //option 5
             customerDetailsList.Add(""); //option 6
 
@@ -225,9 +225,9 @@ namespace LaundryManager
             }
 
             customerDetailsList.Add(notes);
-            customerDetailsList.Add(tbPriceStructure.Text); //option 2 - Price Structure
-            customerDetailsList.Add(tbDeliveryCharge.Text); //option 3 - Delivery Charge
-            customerDetailsList.Add(""); //option 4
+            customerDetailsList.Add(tbDiscountPercent.Text); //option 2 - Discount Percent
+            customerDetailsList.Add(tbDiscountStartAmount.Text); //option 3 - Discount start Amount
+            customerDetailsList.Add(tbDeliveryCharge.Text); //option 4 - Delivery Charge
             customerDetailsList.Add(""); //option 5
             customerDetailsList.Add(""); //option 6
 
@@ -301,8 +301,9 @@ namespace LaundryManager
                     }
 
                     tbNotes.Text = customerDetails[16];
-                    tbPriceStructure.Text = customerDetails[17];
-                    tbDeliveryCharge.Text = customerDetails[18];
+                    tbDiscountPercent.Text = customerDetails[17];
+                    tbDiscountStartAmount.Text = customerDetails[18];
+                    tbDeliveryCharge.Text = customerDetails[19];
                     
                 }
                 else
@@ -329,10 +330,11 @@ namespace LaundryManager
             tbEmail1.Clear();
             tbEmail2.Clear();
             tbEmail3.Clear();
-            tbPriceStructure.Clear();
+            tbDiscountPercent.Clear();
+            tbDiscountStartAmount.Clear();
             tbNotes.Clear();
             tbDeliveryCharge.Clear();
-            tbPriceStructure.Clear();
+            //tbPriceStructure.Clear();
             btnActiveCustomer.Content = glob_btnActiveContent;
             cbCustomerNumbers.SelectedIndex = 0;
         }

@@ -230,18 +230,30 @@ namespace LaundryManager
 
         }
 
-        private void buttonEmailBilling_Click(object sender, RoutedEventArgs e)
+        private void buttonBilling_Click(object sender, RoutedEventArgs e)
         {
-
+            Billing billing = new Billing();
+            billing.ShowDialog();
         }
 
         private void buttonBackup_Click(object sender, RoutedEventArgs e)
         {
 
-            BackupForm backupForm = new BackupForm();
-            backupForm.ShowDialog();
+            //BackupForm backupForm = new BackupForm();
+            //backupForm.ShowDialog();
+
+            Test test = new Test();
+            test.ShowDialog();
 
         }
+
+        private void buttonEmailSettings_Click(object sender, RoutedEventArgs e)
+        {
+            EmailSettings emailSettings = new EmailSettings();
+            emailSettings.ShowDialog();
+        }
+
+        
     }
 
     public class ProgOps

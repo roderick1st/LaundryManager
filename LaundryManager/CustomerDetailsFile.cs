@@ -105,6 +105,7 @@ namespace LaundryManager
             bool enableEdit = false;
             bool legacyRepairComplete = false;
             int recordCounter;
+            int nodeFixcounter;
 
             while (!legacyRepairComplete)
             {
@@ -117,6 +118,8 @@ namespace LaundryManager
                 XmlNodeList nodes = root.SelectNodes("Customer");
                 foreach (XmlNode node in nodes)//for each customer
                 {
+                    nodeFixcounter = 2;
+
                     foreach (XmlNode childnode in node.ChildNodes)//look at each child node
                     {
                         //find the same customer number in the list
@@ -129,16 +132,27 @@ namespace LaundryManager
                             childnode.InnerText = customerDetailsList[recordCounter];
 
                             //deal with legacy issues
+                           
+
                             if (childnode.Name == "option2")
                             {
                                 legacyRepairComplete = false;
-                                XmlNode replacementNode = xmlDocument.CreateElement(string.Empty, "PriceStructure", string.Empty);
+                                XmlNode replacementNode = xmlDocument.CreateElement(string.Empty, "DiscountPrice", string.Empty);
                                 replacementNode.InnerXml = childnode.InnerXml; //copy the contents
                                 node.InsertBefore(replacementNode, childnode);
                                 node.RemoveChild(childnode);
 
                             }
                             if (childnode.Name == "option3")
+                            {
+                                legacyRepairComplete = false;
+                                XmlNode replacementNode = xmlDocument.CreateElement(string.Empty, "DiscountStartAmount", string.Empty);
+                                replacementNode.InnerXml = childnode.InnerXml; //copy the contents
+                                node.InsertBefore(replacementNode, childnode);
+                                node.RemoveChild(childnode);
+
+                            }
+                            if (childnode.Name == "option4")
                             {
                                 legacyRepairComplete = false;
                                 XmlNode replacementNode = xmlDocument.CreateElement(string.Empty, "DeliveryCharge", string.Empty);
@@ -201,11 +215,11 @@ namespace LaundryManager
             XmlText newActiveText = xmlDocument.CreateTextNode(customerDetailsList[15]);
             XmlNode newNotesNode = xmlDocument.CreateNode(XmlNodeType.Element, "Notes", null);
             XmlText newNotesText = xmlDocument.CreateTextNode(customerDetailsList[16]);
-            XmlNode newPriceStructureNode = xmlDocument.CreateNode(XmlNodeType.Element, "PriceStructure", null);
+            XmlNode newPriceStructureNode = xmlDocument.CreateNode(XmlNodeType.Element, "DiscountPercent", null);
             XmlText newPriceStructureText = xmlDocument.CreateTextNode(customerDetailsList[17]);
-            XmlNode newDeliveryChargeNode = xmlDocument.CreateNode(XmlNodeType.Element, "DeliveryCharge", null);
+            XmlNode newDeliveryChargeNode = xmlDocument.CreateNode(XmlNodeType.Element, "DiscountStartAmount", null);
             XmlText newDeliveryChargeText = xmlDocument.CreateTextNode(customerDetailsList[18]);
-            XmlNode newoption4Node = xmlDocument.CreateNode(XmlNodeType.Element, "option4", null);
+            XmlNode newoption4Node = xmlDocument.CreateNode(XmlNodeType.Element, "DeliveryCharge", null);
             XmlText newoption4Text = xmlDocument.CreateTextNode(customerDetailsList[19]);
             XmlNode newoption5Node = xmlDocument.CreateNode(XmlNodeType.Element, "option5", null);
             XmlText newoption5Text = xmlDocument.CreateTextNode(customerDetailsList[20]);
@@ -268,4 +282,5 @@ namespace LaundryManager
             
         }
     }
+
 }

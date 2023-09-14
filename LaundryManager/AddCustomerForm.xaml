@@ -77,8 +77,10 @@
             </ScrollViewer>
         </StackPanel>
         <StackPanel Grid.Column="2">
-            <TextBlock Text="Price Structure" FontSize="25" Margin="5 0 2 2"/>
-            <TextBox x:Name="tbPriceStructure" Text="" FontSize="25" Margin="5 2 2 20" Background="Wheat"/>
+            <TextBlock Text="Discount Percent" FontSize="25" Margin="5 0 2 2"/>
+            <TextBox x:Name="tbDiscountPercent" Text="" FontSize="25" Margin="5 2 2 20" Background="Wheat"/>
+            <TextBlock Text="Discount Start Amount" FontSize="25" Margin="5 0 2 2"/>
+            <TextBox x:Name="tbDiscountStartAmount" Text="" FontSize="25" Margin="5 2 2 20" Background="Wheat"/>
             <TextBlock Text="Delivery Charge" FontSize="25" Margin="5 0 2 2"/>
             <TextBox x:Name="tbDeliveryCharge" Text="" FontSize="25" Margin="5 2 2 0" Background="Wheat"/>
         </StackPanel>

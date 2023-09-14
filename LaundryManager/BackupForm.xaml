@@ -17,6 +17,7 @@
             <Label Content="Backup Drive:" Margin="10,10,10,2"/>
             <ListBox x:Name="bkListBoxDrives" SelectionChanged="bkListBoxDrives_SelectionChanged" Margin="10,0,10,10"/>
             <Button x:Name="bkButtonBackup" Content="Backup" Click="bkButtonBackup_Click" IsEnabled="False" Height="100" Margin="10,10,10,10"/>
+            <Button x:Name="bkCancel" Content="Cancel" Click="bkCancel_Click" IsEnabled="True" Height="30" Margin="10,10,10,10"/>
         </StackPanel>
 
 

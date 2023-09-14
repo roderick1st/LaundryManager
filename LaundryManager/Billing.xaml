@@ -1,0 +1,86 @@
+﻿<Window x:Class="LaundryManager.Billing"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LaundryManager"
+        mc:Ignorable="d"
+        Title="Billing" Height="780" Width="1200"
+        Loaded="Billing_Window_Loaded">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="400"/>
+            <ColumnDefinition Width="*"/>
+
+
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0">
+            <TextBlock Text="Select Price List" FontSize="25" Margin="10 0 5 2"/>
+
+            <ListBox x:Name="listBoxPriceLists" FontSize="15" Height="350" Margin="10 4 5 2" 
+                                 Background="Wheat"  
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" d:ItemsSource="{d:SampleData ItemCount=5}"
+                                 SelectionChanged="listBoxPriceLists_SelectionChanged"/>
+
+            <Button x:Name="buttonCreateNewPriceList" Content="New Price List" FontSize="25" Click="buttonCreateNewPriceList_Click" Margin="10 0 5 2"/>
+
+            <TextBlock Text="Select ticket period" FontSize="25" Margin="0 40 5 2" HorizontalAlignment="Center"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Start Date" FontSize="25" Margin="0 10 5 2" HorizontalAlignment="Center"/>
+                    <DatePicker x:Name="startDatePicker" FontSize="20" HorizontalAlignment="Center" SelectedDateChanged="startDatePicker_SelectedDateChanged"/>
+                    <Button x:Name="btnRefreshDates" FontSize="25" Content="Refresh Pricing" Margin="10 20 5 2" Click="btnRefreshDates_Click" Height="56"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="End Date" FontSize="25" Margin="0 10 5 2" HorizontalAlignment="Center"/>
+                    <DatePicker x:Name="endDatePicker"  HorizontalAlignment="Center" FontSize="20" SelectedDateChanged="endDatePicker_SelectedDateChanged"/>
+                    <Button x:Name="btnProcessBilling" FontSize="25" Content="Process Billing" Click="btnProcessBilling_Click" IsEnabled="False" Margin="5 20 5 2" Height="56"/>
+                </StackPanel>
+            </Grid>
+
+        </StackPanel>
+
+
+        <StackPanel Grid.Column="1">
+            <DataGrid x:Name="dataGridUnbilledTickets" Height="659" Margin="0 0 0 0" HorizontalAlignment="Left"
+                          HorizontalScrollBarVisibility="Hidden" FontSize="15" CanUserResizeRows="False" d:ItemsSource="{d:SampleData}"
+                    RowHeaderWidth="25" HeadersVisibility="All" Width="793">
+                <DataGrid.CellStyle>
+                    <Style TargetType="{x:Type DataGridCell}">
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderBrush" Value="Transparent"/>
+                                <Setter Property="Foreground" Value="Black"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.CellStyle>
+                
+                <DataGrid.RowHeaderStyle>
+                    <Style TargetType="{x:Type DataGridRowHeader}">
+                        <Setter Property="Background" Value="GreenYellow"/>
+                        <Setter Property="BorderThickness"  Value="1"/>
+                        <EventSetter Event="Click" Handler="DataGridRowHeader_Click" />
+                    </Style>
+                    
+                </DataGrid.RowHeaderStyle>
+
+
+                <DataGrid.Columns>
+
+
+                </DataGrid.Columns>
+
+            </DataGrid>
+        </StackPanel>
+
+
+    </Grid>
+</Window>

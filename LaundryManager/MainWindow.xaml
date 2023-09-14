@@ -16,67 +16,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0">
-                <!--<TextBlock Text="Find by Name" FontSize="25" Margin="10 0 5 2"/>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0">
-                        <Button Content="A" Margin="2 0 1 1"/>
-                        <Button Content="K" Margin="2 0 1 1"/>
-                        <Button Content="U" Margin="2 0 1 1"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="1">
-                        <Button Content="B" Margin="1 0 1 1"/>
-                        <Button Content="L" Margin="1 0 1 1"/>
-                        <Button Content="V" Margin="1 0 1 1"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="2">
-                        <Button Content="C" Margin="1 0 1 1"/>
-                        <Button Content="M" Margin="1 0 1 1"/>
-                        <Button Content="W" Margin="1 0 1 1"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="3">
-                        <Button Content="D" Margin="1 0 1 1"/>
-                        <Button Content="N" Margin="1 0 1 1"/>
-                        <Button Content="X" Margin="1 0 1 1"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="4">
-                        <Button Content="E" Margin="1 0 1 1"/>
-                        <Button Content="O" Margin="1 0 1 1"/>
-                        <Button Content="Y" Margin="1 0 1 1"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="5">
-                        <Button Content="F" Margin="1 0 1 1"/>
-                        <Button Content="P" Margin="1 0 1 1"/>
-                        <Button Content="Z" Margin="1 0 1 1"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="6">
-                        <Button Content="G" Margin="1 0 1 1"/>
-                        <Button Content="Q" Margin="1 0 1 1"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="7">
-                        <Button Content="H" Margin="1 0 1 1"/>
-                        <Button Content="R" Margin="1 0 1 1"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="8">
-                        <Button Content="I" Margin="1 0 1 1"/>
-                        <Button Content="S" Margin="1 0 1 1"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="9">
-                        <Button Content="J" Margin="1 0 2 1"/>
-                        <Button Content="T" Margin="1 0 2 1"/>
-                    </StackPanel>
-                </Grid>-->
+
                 <TextBlock Text="Find by Customer Number" FontSize="25" Margin="10 10 5 2"/>
                 <ListBox x:Name="listBoxFindByCustomer" FontSize="15" Height="200" Margin="10 0 5 2" 
                          Background="Wheat"  SelectionChanged="ListBoxFindByCustomer_SelectionChanged"/>
@@ -84,10 +24,10 @@
                 <ListBox x:Name="listBoxSelectCustomer" FontSize="15" Height="160" Margin="10 0 5 2" 
                          Background="Wheat" SelectionChanged="listBoxSelectCustomer_SelectionChanged"/>
                 <Button x:Name="buttonAddCustomer" Content="Edit Customers" FontSize="25" Click="buttonAddCustomer_Click" 
-                        Background="Wheat" Margin="40 100 40 0"/>
+                        Background="Wheat" Margin="40 55 40 0"/>
                 <Button x:Name="buttonAddJob" Content="Job Sheets" FontSize="25" Click="buttonAddJob_Click" 
                         Background="GreenYellow" Margin="40 10 40 0"/>
-                <Button x:Name="buttonEmailBilling" Content="EMail Billing Sheets" FontSize="25" Click="buttonEmailBilling_Click" 
+                <Button x:Name="buttonBilling" Content="Billing" FontSize="25" Click="buttonBilling_Click" 
                         Background="orange" Margin="40 10 40 0"/>
                 <Button x:Name="buttonBackup" Content="Backup" FontSize="25" Click="buttonBackup_Click" 
                         Background="BlueViolet" Margin="40 10 40 0"/>
@@ -101,7 +41,7 @@
                 <TextBlock Text="Customer Notes" FontSize="25" Margin="5 10 5 2"/>
                 <TextBlock x:Name="textBoxCustNotes" FontSize="15"  TextWrapping="WrapWithOverflow"  Height="237" 
                            Background="CornflowerBlue" Margin="5 0 5 0"/>
-        
+
             </StackPanel>
             <StackPanel Grid.Column="2">
                 <TextBlock Text="Additional Message" FontSize="25" Margin="5 0 0 2"/>
@@ -113,7 +53,9 @@
                 </ScrollViewer>
                 <ListBox x:Name="listBoxEmailAddress" FontSize="15" Height="100" SelectionMode="Multiple" Margin="0 10 0 0" />
                 <Button x:Name="buttonSend" Content="Send Message" FontSize="25" Click="buttonSend_Click" 
-                        Background="DarkOrange" Margin="40 63 40 0"/>
+                        Background="DarkOrange" Margin="40 10 40 0"/>
+                <Button x:Name="buttonEmailSettings" Content="EMail Settings" FontSize="25" Click="buttonEmailSettings_Click" 
+                        Background="OrangeRed" Margin="40 17 40 0"/>
                 <TextBlock x:Name="textBlockSendStatus" TextWrapping="Wrap" Height="20" Margin="0 10 0 0" />
                 
 

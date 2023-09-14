@@ -156,6 +156,9 @@ namespace LaundryManager
 
         }
 
-
+        private void bkCancel_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
     }
 }
