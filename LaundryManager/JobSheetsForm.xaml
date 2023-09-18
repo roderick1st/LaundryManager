@@ -27,6 +27,8 @@
                         <TextBlock Text="Tickets:" FontSize="25" Margin="10 350 5 2"/>
                         <Button x:Name="buttonJSNewTicket" Content="New Ticket" FontSize="20" Click="buttonJSNewTicket_Click" 
                                 Background="GreenYellow" Margin="4 10 4 0" IsEnabled="false"/>
+                        <Button x:Name="buttonJSClose" Content="Close" FontSize="20" Click="buttonJSClose_Click" 
+                                Background="DarkOrange" Margin="4 222 4 0" IsEnabled="True"/>
 
 
                     </StackPanel>

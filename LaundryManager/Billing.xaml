@@ -35,12 +35,14 @@
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="Start Date" FontSize="25" Margin="0 10 5 2" HorizontalAlignment="Center"/>
                     <DatePicker x:Name="startDatePicker" FontSize="20" HorizontalAlignment="Center" SelectedDateChanged="startDatePicker_SelectedDateChanged"/>
-                    <Button x:Name="btnRefreshDates" FontSize="25" Content="Refresh Pricing" Margin="10 20 5 2" Click="btnRefreshDates_Click" Height="56"/>
+                    <Button x:Name="btnRefreshDates" FontSize="25" Content="Refresh Pricing" Margin="10 20 5 2" Click="btnRefreshDates_Click" Height="56"
+                            Background="YellowGreen"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1">
                     <TextBlock Text="End Date" FontSize="25" Margin="0 10 5 2" HorizontalAlignment="Center"/>
                     <DatePicker x:Name="endDatePicker"  HorizontalAlignment="Center" FontSize="20" SelectedDateChanged="endDatePicker_SelectedDateChanged"/>
-                    <Button x:Name="btnProcessBilling" FontSize="25" Content="Process Billing" Click="btnProcessBilling_Click" IsEnabled="False" Margin="5 20 5 2" Height="56"/>
+                    <Button x:Name="btnProcessBilling" FontSize="25" Content="Process Billing" Click="btnProcessBilling_Click" IsEnabled="False" 
+                            Margin="5 20 5 2" Height="56" Background="DarkOrange"/>
                 </StackPanel>
             </Grid>
 
@@ -50,7 +52,7 @@
         <StackPanel Grid.Column="1">
             <DataGrid x:Name="dataGridUnbilledTickets" Height="659" Margin="0 0 0 0" HorizontalAlignment="Left"
                           HorizontalScrollBarVisibility="Hidden" FontSize="15" CanUserResizeRows="False" d:ItemsSource="{d:SampleData}"
-                    RowHeaderWidth="25" HeadersVisibility="All" Width="793">
+                    RowHeaderWidth="25" HeadersVisibility="All" Width="793" IsReadOnly="True">
                 <DataGrid.CellStyle>
                     <Style TargetType="{x:Type DataGridCell}">
                         <Style.Triggers>

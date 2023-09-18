@@ -498,8 +498,8 @@ namespace LaundryManager
 
             //display the new grid
             dataGridUnbilledTickets.ItemsSource = new DataView(gridTableOfBillibletickets);
-            //dataGridUnbilledTickets.Columns[8].Visibility = Visibility.Hidden; //hide the index
-            //dataGridUnbilledTickets.Columns[9].Visibility = Visibility.Hidden; //hide the ticket file
+            dataGridUnbilledTickets.Columns[9].Visibility = Visibility.Hidden; //hide the index
+            //dataGridUnbilledTickets.Columns[10].Visibility = Visibility.Hidden; //hide the ticket file
             //dataGridJSShortCodes.ItemsSource = new DataView(shortCodesData);
 
         }
@@ -788,7 +788,11 @@ namespace LaundryManager
             }
 
             //create the csv file for xero
-            CreateCSVFile(XeroFinalTable);
+            if(XeroFinalTable.Rows.Count > 0)
+            {
+                CreateCSVFile(XeroFinalTable);
+            }
+            
 
             //close the window
             this.Close();
@@ -944,6 +948,7 @@ namespace LaundryManager
                         newDeliveryRow[10] = invoiceNumber;
                         newDeliveryRow[11] = reference;
                         newDeliveryRow[12] = invoiceDate;
+                        newDeliveryRow[13] = invoiceDueDate;
                         newDeliveryRow[16] = "Delivery";
                         newDeliveryRow[17] = dr[1].ToString();
                         newDeliveryRow[18] = dr[3].ToString();
@@ -966,6 +971,7 @@ namespace LaundryManager
                         newDiscountRow[10] = invoiceNumber;
                         newDiscountRow[11] = reference;
                         newDiscountRow[12] = invoiceDate;
+                        newDiscountRow[13] = invoiceDueDate;
                         newDiscountRow[16] = "Discount";
                         newDiscountRow[17] = "1";
                         newDiscountRow[18] = dr[4].ToString();
@@ -987,6 +993,7 @@ namespace LaundryManager
                         newItemRow[10] = invoiceNumber;
                         newItemRow[11] = reference;
                         newItemRow[12] = invoiceDate;
+                        newItemRow[13] = invoiceDueDate;
                         newItemRow[16] = dr[1].ToString();
                         newItemRow[17] = dr[2].ToString();
                         newItemRow[18] = dr[3].ToString();
@@ -1009,17 +1016,6 @@ namespace LaundryManager
             return dt;
         }
 
-        DataRow clearRow(DataTable xeroTable)
-        {
-            DataRow dr = xeroTable.NewRow();
-
-            for(int rowCount = 0; rowCount<xeroTable.Rows.Count; rowCount++)
-            {
-                dr[rowCount] = "";
-            }
-
-            return dr;
-        }
 
         DataTable CreateXeroTemplate()
         {
@@ -1069,6 +1065,7 @@ namespace LaundryManager
             DataTable dt = new();
             DataColumn ticketName = new DataColumn("Ticket", typeof(string));
 
+            //dataGridUnbilledTickets.Columns[10].Visibility = Visibility.Visible; //hide the ticket file
             dt.Columns.Add(ticketName);
 
             foreach (var row in list)
@@ -1083,6 +1080,8 @@ namespace LaundryManager
                     dt.Rows.Add((newRow));
                 }
             }
+
+            //dataGridUnbilledTickets.Columns[10].Visibility = Visibility.Hidden; //hide the ticket file
 
             return dt;
 
