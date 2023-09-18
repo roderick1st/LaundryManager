@@ -16,6 +16,8 @@ using System.Windows.Shapes;
 using System.Xml;
 using System.Globalization;
 using System.Windows.Controls.Primitives;
+using System.Collections;
+using System.Reflection;
 
 namespace LaundryManager
 {
@@ -28,6 +30,7 @@ namespace LaundryManager
         string glob_ticketsFilePath = "";
         string glob_PriceListsFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Laundry\\PriceLists";
         string glob_CustomerDetailsXML = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Laundry\\CustomerDetails.xml";
+        DataTable gridTableOfBillibletickets = new();
         DataTable glob_PriceListsTable;
         DataSet unbilledTicketsDataSet = new(); //tickets that are unbilled
         DataSet billableTickets = new(); //tickets within the date range that are unbilled
@@ -45,6 +48,8 @@ namespace LaundryManager
 
         private void DataGridRowHeader_Click(object sender, RoutedEventArgs e)
         {
+            
+            /*
             //get the selected row.
             DependencyObject dep = (DependencyObject)e.OriginalSource;
 
@@ -84,7 +89,7 @@ namespace LaundryManager
 
             //DataGridRow newrow = 
 
-            
+            */
         }
 
         private void Billing_Window_Loaded(object sender, RoutedEventArgs e)
@@ -409,7 +414,8 @@ namespace LaundryManager
 
             //lets create a list for the actual grid on the display
             //loop the newly created billable tickets
-            DataTable gridTableOfBillibletickets = new();
+            gridTableOfBillibletickets.Clear();
+            gridTableOfBillibletickets.Columns.Clear();
             DataColumn TicketNumCol = new DataColumn("Ticket", typeof(string));
             DataColumn TicketDateCol = new DataColumn("Date", typeof(string));
             DataColumn CustomerNumberCol = new DataColumn("CN", typeof(string));
@@ -418,8 +424,13 @@ namespace LaundryManager
             DataColumn DiscountPercCol = new DataColumn("Discount %", typeof(string));
             DataColumn DeliveryCharge = new DataColumn("Delivery", typeof(string));
             DataColumn TicketTotalPrice = new DataColumn("Ticket Total", typeof(string));
+            DataColumn UnbilledIndex = new DataColumn("Unbilled Index", typeof(int));
+            DataColumn TicketFile = new DataColumn("Ticket File", typeof(string));
+            DataColumn BillTicket = new DataColumn("Bill ticket", typeof(bool));
             //DataColumn TicketLocationCol = new DataColumn("TicketID", typeof(string));
+            int unbilledIndex = 0;
 
+            gridTableOfBillibletickets.Columns.Add(BillTicket);
             gridTableOfBillibletickets.Columns.Add(TicketNumCol);
             gridTableOfBillibletickets.Columns.Add(TicketDateCol);
             gridTableOfBillibletickets.Columns.Add(CustomerNumberCol);
@@ -428,16 +439,24 @@ namespace LaundryManager
             gridTableOfBillibletickets.Columns.Add(DiscountCol);
             gridTableOfBillibletickets.Columns.Add(DeliveryCharge);
             gridTableOfBillibletickets.Columns.Add(TicketTotalPrice);
+            gridTableOfBillibletickets.Columns.Add(UnbilledIndex);
+            gridTableOfBillibletickets.Columns.Add(TicketFile);
+            
 
             foreach (DataTable billableTicket in billableTickets.Tables)
             {
                 DataRow newGridRow = gridTableOfBillibletickets.NewRow();
+
+                newGridRow["Unbilled Index"] = unbilledIndex++;
+                newGridRow["Ticket File"] = billableTicket.TableName;
+                newGridRow["Bill Ticket"] = true;
 
                 foreach (DataRow row in billableTicket.Rows)
                 {
                     
                     switch (row[0].ToString())
                     {
+                     
                         case "TicketNumber":
                             newGridRow["Ticket"] = row[1].ToString();
                             break;
@@ -479,6 +498,8 @@ namespace LaundryManager
 
             //display the new grid
             dataGridUnbilledTickets.ItemsSource = new DataView(gridTableOfBillibletickets);
+            //dataGridUnbilledTickets.Columns[8].Visibility = Visibility.Hidden; //hide the index
+            //dataGridUnbilledTickets.Columns[9].Visibility = Visibility.Hidden; //hide the ticket file
             //dataGridJSShortCodes.ItemsSource = new DataView(shortCodesData);
 
         }
@@ -540,6 +561,7 @@ namespace LaundryManager
                 ticketDocument.Load(ticketFile);
                 unbilledTicketsDataSet.Tables.Add(new DataTable(ticketFile));
                 unbilledTicketsDataSet.Tables[ticketFile].Columns.Add("Desc");
+                //unbilledTicketsDataSet.Tables[ticketFile].Columns.Add("Code");
                 unbilledTicketsDataSet.Tables[ticketFile].Columns.Add("Val");
                 unbilledTicketsDataSet.Tables[ticketFile].Columns.Add("Count");
 
@@ -730,6 +752,341 @@ namespace LaundryManager
         private void btnProcessBilling_Click(object sender, RoutedEventArgs e)
         {
 
+            DataTable UserSelectedTicketsTable = GetTicketsUserWants();
+            DataSet XeroDataset = new();
+
+            //DataTable XeroTable = CreateXeroTemplate();
+
+
+
+            //loop through all the tickets processing the ones in the above table
+            foreach (DataRow ticketToBillRow in UserSelectedTicketsTable.Rows)
+            {
+                string tickToProcess = ticketToBillRow[0].ToString();
+
+                foreach(DataTable ticketTable in billableTickets.Tables)
+                {
+                    if(ticketTable.TableName == tickToProcess)
+                    {
+
+                        XeroDataset.Tables.Add(XeroCSVTable(ticketTable)); //pass the current tickt to be processed 
+
+                        //move the ticket file to the billed tickets folder
+                        MoveTickettoBilledFolder(tickToProcess);
+                        
+                    }
+                }
+
+            }
+
+            //create one table with all the data in it
+            DataTable XeroFinalTable = CreateXeroTemplate();
+
+            foreach(DataTable dsTable in XeroDataset.Tables)
+            {
+                XeroFinalTable.Merge(dsTable);
+            }
+
+            //create the csv file for xero
+            CreateCSVFile(XeroFinalTable);
+
+            //close the window
+            this.Close();
+
         }
+
+        private void CreateCSVFile(DataTable XeroTable)
+        {
+            string saveFilePath = glob_ticketsFilePath + "\\Xero";
+
+            //check if the folder exists
+            if (!Directory.Exists(saveFilePath))
+            {
+                //create the directory
+                Directory.CreateDirectory(saveFilePath);
+            }
+
+            saveFilePath = saveFilePath + "\\Xero_" + DateTime.Now.ToString("dd-MM-yy_HH-mm-ss") + ".csv";
+
+
+            StringBuilder sb = new StringBuilder();
+
+            IEnumerable<string> columnNames = XeroTable.Columns.Cast<DataColumn>().Select(column => column.ColumnName);
+            sb.AppendLine(string.Join(",", columnNames));
+
+            foreach (DataRow row in XeroTable.Rows)
+            {
+                IEnumerable<string> fields = row.ItemArray.Select(field => field.ToString());
+                sb.AppendLine(string.Join(",", fields));
+            }
+
+            File.WriteAllText(saveFilePath, sb.ToString());
+        }
+
+        private void MoveTickettoBilledFolder(string filePath)
+        {
+            //check if the folder exists
+            string billedTickedsPath = glob_ticketsFilePath + "\\Billed";
+            if (!Directory.Exists(billedTickedsPath))
+            {
+                //create the directory
+                Directory.CreateDirectory(billedTickedsPath);
+            }
+
+            //extract the filename
+            int startIndex = filePath.IndexOf("TK-");
+            int endIndex = filePath.IndexOf(".xml") + 4;
+            string filename = filePath.Substring(startIndex,endIndex-startIndex);
+
+            File.Move(filePath, billedTickedsPath + "\\" + filename);
+
+
+        }
+
+        DataTable XeroCSVTable(DataTable currentTicketTable)
+        { 
+            DataTable dt = CreateXeroTemplate(); //create a new table with the xero remplate
+                                                 //
+            string customerContactFirstName = "";
+            string customerContactSecondName = "";
+            string customerEMail = "";
+            string customerAddress1 = "";
+            string customerAddress2 = "";
+            string customerAddress3 = "";
+            string customerAddressTown = "";
+            string customerAddressCounty = "";
+            string customerPostCode = "";
+            string customerCN = "0";
+
+
+            foreach (DataRow ticketTableRow in currentTicketTable.Rows) //find the customer name
+            {
+                if(ticketTableRow[0].ToString() == "CN")
+                {
+                    customerCN = ticketTableRow[1].ToString(); //get the CN numer
+
+                    foreach(DataRow customerDetailsRow in customerDetails.Tables["CN" + customerCN].Rows)
+                    {
+                        switch (customerDetailsRow[0].ToString())
+                        {
+                            case "FirstName":
+                                customerContactFirstName = customerDetailsRow[1].ToString();
+                                break;
+
+                            case "LastName":
+                                customerContactSecondName = customerDetailsRow[1].ToString();
+                                break;
+
+                            case "EmailPrimary":
+                                customerEMail = customerDetailsRow[1].ToString();
+                                break;
+
+                            case "AddressLn1":
+                                customerAddress1 = customerDetailsRow[1].ToString();
+                                break;
+
+                            case "AddressLn2":
+                                customerAddress2 = customerDetailsRow[1].ToString();
+                                break;
+
+                            case "AddressLn3":
+                                customerAddress3 = customerDetailsRow[1].ToString();
+                                break;
+
+                            case "AddressTown":
+                                customerAddressTown = customerDetailsRow[1].ToString();
+                                break;
+
+                            case "AddressCounty":
+                                customerAddressCounty = customerDetailsRow[1].ToString();
+                                break;
+
+                            case "AddressPostCode":
+                                customerPostCode = customerDetailsRow[1].ToString();
+                                break;
+                        }
+                    }
+                    break; //customer found so stop scanning
+                }
+            }
+
+            //generate the invoice number
+            string invoiceNumber = "CN" + customerCN + "-" + DateTime.Now.ToString("MM") + "-" + DateTime.Now.ToString("yyyy");
+            string lastMonth = DateTime.Now.AddMonths(-1).ToString("MMM");
+            string lastYear;
+            if(lastMonth == "Dec")
+            {
+                lastYear = DateTime.Now.AddYears(-1).ToString("yy");
+            } else
+            {
+                lastYear = DateTime.Now.ToString("yy");
+            }
+            string reference = lastMonth + "-" + lastYear;
+            string invoiceDate = DateTime.Now.ToString("dd/MM/yyyy");
+            string invoiceDueDate = DateTime.Now.AddDays(7).ToString("dd/MM/yyyy");
+
+            foreach(DataRow dr in currentTicketTable.Rows) //loop through each row in the ticket table
+            {
+                //DataRow newRow = dt.NewRow();
+
+                switch (dr[0].ToString())
+                {
+                    case "DeliveryCount":  
+                        DataRow newDeliveryRow = dt.NewRow();
+                        newDeliveryRow[0] = customerContactFirstName + " " + customerContactSecondName;
+                        newDeliveryRow[1] = customerEMail;
+                        newDeliveryRow[2] = customerAddress1;
+                        newDeliveryRow[3] = customerAddress2;
+                        newDeliveryRow[4] = customerAddress3;
+                        newDeliveryRow[6] = customerAddressTown;
+                        newDeliveryRow[7] = customerAddressCounty;
+                        newDeliveryRow[8] = customerPostCode;
+                        newDeliveryRow[10] = invoiceNumber;
+                        newDeliveryRow[11] = reference;
+                        newDeliveryRow[12] = invoiceDate;
+                        newDeliveryRow[16] = "Delivery";
+                        newDeliveryRow[17] = dr[1].ToString();
+                        newDeliveryRow[18] = dr[3].ToString();
+                        newDeliveryRow[20] = "200-032";
+                        newDeliveryRow[21] = "No VAT";
+                        dt.Rows.Add(newDeliveryRow);//add the row to the table
+                        //newRow = clearRow(dt);
+                        break;
+
+                    case "TotalDiscount":
+                        DataRow newDiscountRow = dt.NewRow();
+                        newDiscountRow[0] = customerContactFirstName + " " + customerContactSecondName;
+                        newDiscountRow[1] = customerEMail;
+                        newDiscountRow[2] = customerAddress1;
+                        newDiscountRow[3] = customerAddress2;
+                        newDiscountRow[4] = customerAddress3;
+                        newDiscountRow[6] = customerAddressTown;
+                        newDiscountRow[7] = customerAddressCounty;
+                        newDiscountRow[8] = customerPostCode;
+                        newDiscountRow[10] = invoiceNumber;
+                        newDiscountRow[11] = reference;
+                        newDiscountRow[12] = invoiceDate;
+                        newDiscountRow[16] = "Discount";
+                        newDiscountRow[17] = "1";
+                        newDiscountRow[18] = dr[4].ToString();
+                        newDiscountRow[20] = "200-999";
+                        newDiscountRow[21] = "No VAT";
+                        dt.Rows.Add(newDiscountRow);//add the row to the table
+                        break;
+
+                    case "Item":
+                        DataRow newItemRow = dt.NewRow();
+                        newItemRow[0] = customerContactFirstName + " " + customerContactSecondName;
+                        newItemRow[1] = customerEMail;
+                        newItemRow[2] = customerAddress1;
+                        newItemRow[3] = customerAddress2;
+                        newItemRow[4] = customerAddress3;
+                        newItemRow[6] = customerAddressTown;
+                        newItemRow[7] = customerAddressCounty;
+                        newItemRow[8] = customerPostCode;
+                        newItemRow[10] = invoiceNumber;
+                        newItemRow[11] = reference;
+                        newItemRow[12] = invoiceDate;
+                        newItemRow[16] = dr[1].ToString();
+                        newItemRow[17] = dr[2].ToString();
+                        newItemRow[18] = dr[3].ToString();
+                        foreach(DataRow priceListRow in priceListUsed.Rows)
+                        {
+                            if(priceListRow[1].ToString() == dr[1].ToString())
+                            {
+                                newItemRow[20] = priceListRow[0].ToString();
+                                break; //exit this for each loop emmediatly
+                            }
+                        }
+                        //newItemRow[20] = "200-999"; //need to add a code to the datatable
+                        newItemRow[21] = "No VAT";
+                        dt.Rows.Add(newItemRow);//add the row to the table
+                        break;
+                }
+            }
+            
+
+            return dt;
+        }
+
+        DataRow clearRow(DataTable xeroTable)
+        {
+            DataRow dr = xeroTable.NewRow();
+
+            for(int rowCount = 0; rowCount<xeroTable.Rows.Count; rowCount++)
+            {
+                dr[rowCount] = "";
+            }
+
+            return dr;
+        }
+
+        DataTable CreateXeroTemplate()
+        {
+            DataTable XeroTemplate = new DataTable();
+            XeroTemplate.Columns.Add("*ContactName", typeof(string));
+            XeroTemplate.Columns.Add("EmailAddress", typeof(string));
+            XeroTemplate.Columns.Add("POAddressLine1", typeof(string));
+            XeroTemplate.Columns.Add("POAddressLine2", typeof(string));
+            XeroTemplate.Columns.Add("POAddressLine3", typeof(string));
+            XeroTemplate.Columns.Add("POAddressLine4", typeof(string));
+            XeroTemplate.Columns.Add("POCity", typeof(string));
+            XeroTemplate.Columns.Add("PORegion", typeof(string));
+            XeroTemplate.Columns.Add("POPostalCode", typeof(string));
+            XeroTemplate.Columns.Add("POCountry", typeof(string));
+            XeroTemplate.Columns.Add("*InvoiceNumber", typeof(string));
+            XeroTemplate.Columns.Add("Reference", typeof(string));
+            XeroTemplate.Columns.Add("*InvoiceDate", typeof(string));
+            XeroTemplate.Columns.Add("*DueDate", typeof(string));
+            XeroTemplate.Columns.Add("Total", typeof(string));
+            XeroTemplate.Columns.Add("InventoryItemCode", typeof(string));
+            XeroTemplate.Columns.Add("*Description", typeof(string));
+            XeroTemplate.Columns.Add("*Quantity", typeof(string));
+            XeroTemplate.Columns.Add("*UnitAmount", typeof(string));
+            XeroTemplate.Columns.Add("Discount", typeof(string));
+            XeroTemplate.Columns.Add("*AccountCode", typeof(string));
+            XeroTemplate.Columns.Add("*TaxType", typeof(string));
+            XeroTemplate.Columns.Add("TaxAmount", typeof(string));
+            XeroTemplate.Columns.Add("TrackingName1", typeof(string));
+            XeroTemplate.Columns.Add("TrackingOption1", typeof(string));
+            XeroTemplate.Columns.Add("TrackingName2", typeof(string));
+            XeroTemplate.Columns.Add("TrackingOption2", typeof(string));
+            XeroTemplate.Columns.Add("Currency", typeof(string));
+            XeroTemplate.Columns.Add("BrandingTheme", typeof(string));
+           
+
+            return XeroTemplate;
+
+        }
+
+        
+
+        DataTable GetTicketsUserWants()
+        {
+            //got through the datagrid to see which tickets to bill
+            IEnumerable list = dataGridUnbilledTickets.ItemsSource as IEnumerable;
+
+            DataTable dt = new();
+            DataColumn ticketName = new DataColumn("Ticket", typeof(string));
+
+            dt.Columns.Add(ticketName);
+
+            foreach (var row in list)
+            {
+                bool IsChecked = (bool)((CheckBox)dataGridUnbilledTickets.Columns[0].GetCellContent(row)).IsChecked;
+
+                if (IsChecked)
+                {
+                    DataRow newRow = dt.NewRow();
+                    TextBlock textBlock = dataGridUnbilledTickets.Columns[10].GetCellContent(row) as TextBlock;
+                    newRow[0] = textBlock.Text;
+                    dt.Rows.Add((newRow));
+                }
+            }
+
+            return dt;
+
+        }
+
     }
 }

@@ -31,6 +31,7 @@ namespace LaundryManager
         string glob_ActiveTicket = "";
         string glob_PriceFilePath = "";
         string glob_ShortCodeFilePath = "";
+        string glob_TicketNumberFilePath = "";
 
         //bool triggeredByCustomerChange = false;
 
@@ -54,12 +55,27 @@ namespace LaundryManager
             glob_ticketsFilePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Laundry\\Tickets";
             glob_PriceFilePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Laundry\\CurrentPrices.xml";
             glob_ShortCodeFilePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Laundry\\ShortCodes.xml";
+            glob_TicketNumberFilePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Laundry\\TicketNumber.txt";
             glob_HandleShorCodeCommit = true;
+            
+        }
+
+        private void OrganiseTicketNumber()
+        {
+            //check if the file exists and if not create it
+            if (!File.Exists(glob_TicketNumberFilePath))
+            {
+                File.Create(glob_TicketNumberFilePath);
+            }
+
         }
 
         private void Job_Sheet_Window_Loaded(object sender, RoutedEventArgs e)
         {
             this.WindowState = WindowState.Maximized;
+
+            //sort out ticket number
+            OrganiseTicketNumber();
 
             //load the known customers into the list box
             PopulateCustomerComboBox();
@@ -239,7 +255,19 @@ namespace LaundryManager
         private void GetTicketFileData() //populate the ticket number list
         {
             //scan through the tickets director finding the last ticket
+
+            //read the ticket counter file
+            string fileContents = File.ReadAllText(glob_TicketNumberFilePath);
+            if(int.TryParse(fileContents, out int result))
+            {
+                glob_newTicketNumber = result;
+            } else
+            {
+                glob_newTicketNumber = 0; //reset the ticket counter
+            }
+
             glob_newTicketNumber = 0; //reset the ticket counter
+
 
             //string fileName;
             //string fileNumber;
@@ -275,16 +303,18 @@ namespace LaundryManager
             ticketInformation = newView.ToTable();
             if(ticketInformation.Rows.Count <= 0)
             {
-                glob_newTicketNumber = 0;
+                ////////////////////glob_newTicketNumber = 0;
             } else
             {
                 glob_newTicketNumber = Convert.ToInt32(ticketInformation.Rows[0].Field<string>("TicketNumberInt"));
             }
             
-            glob_newTicketNumber++; //increment to next ticket number            
-
+            glob_newTicketNumber++; //increment to next ticket number
+            //StreamWriter streamWriter = new StreamWriter(@glob_TicketNumberFilePath,false);
+            //streamWriter.WriteLine(glob_newTicketNumber.ToString());
+            //streamWriter.Close();
         }
-
+    
 
         private void SaveTicketInformation(string filePath)
         {
@@ -350,7 +380,31 @@ namespace LaundryManager
 
             //make the file name
             //conver number to string
-            string filename = glob_newTicketNumber.ToString();
+
+            
+
+            //read the ticket counter file
+            string fileContents = File.ReadAllText(glob_TicketNumberFilePath);
+            string filename;
+            int result;
+            if (int.TryParse(fileContents, out result))
+            {
+                filename = result.ToString();
+            }
+            else
+            {
+                filename = glob_newTicketNumber.ToString(); //should not be needed
+            }
+
+            //increment the ticket number
+            result++;
+            StreamWriter streamWriter = new StreamWriter(@glob_TicketNumberFilePath,false);
+            streamWriter.WriteLine(result.ToString());
+            streamWriter.Close();
+
+            glob_newTicketNumber = 0; //reset the ticket counter
+
+            //string filename = glob_newTicketNumber.ToString();
             string zeroHolder = "";
             //find the length of the file name as file name needs to be 10 chars long
             for (int addZero = 0; addZero < 10 - filename.Length; addZero++)
