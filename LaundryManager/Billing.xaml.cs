@@ -94,6 +94,7 @@ namespace LaundryManager
 
         private void Billing_Window_Loaded(object sender, RoutedEventArgs e)
         {
+            this.WindowState = WindowState.Maximized;
             SortDateOut();
             LoadPriceLists();
             LoadCustomerInformation();
@@ -179,6 +180,11 @@ namespace LaundryManager
                 return newEndDate;
             }
 
+        }
+
+        private void AddMessagetoBar(string message)
+        {
+            lblMessageBar.Content = message;
         }
 
         private void PopulateBilledTicketsDataGrid()
@@ -280,7 +286,7 @@ namespace LaundryManager
                 double calcFinalTicketPrice = 0.00f;
                 double totalItemsPrice = 0.00F;
                 double totalTicketPrice = 0.00f;
-                int delRowIndex = 0;
+                int delRowIndex = -1;
                 int delRowCounter = 0;
                 
 
@@ -292,25 +298,44 @@ namespace LaundryManager
                     {
                         string customerNumber = "CN" + row.Field<string>("Val").ToString();
                         //look up the customer in the customer table
+                        //Add required data to the processing ticket
                         foreach(DataRow custDetailsRow in customerDetails.Tables[customerNumber].Rows)
                         {      
                             
                             switch (custDetailsRow.Field<string>("Property")){
-                                case "DiscountPrice":
-                                    //DiscountRow["Desc"] = custDetailsRow.Field<string>("Property");
+                                //case "DiscountPrice":
+                                case "DiscountPercent":
                                     DiscountRow["Desc"] = "Discount %";
                                     DiscountRow["Val"] = custDetailsRow.Field<string>("Value");
-                                    calcDiscountPercent = double.Parse(custDetailsRow.Field<string>("Value"));
+
+                                    if(!double.TryParse(custDetailsRow.Field<string>("Value"), out calcDiscountPercent))
+                                    {
+                                        calcDiscountPercent = 0.00f;
+                                        AddMessagetoBar("PopulateBilledTicketsDataGrid - Row 312");
+                                    }
                                     break;
 
                                 case "DiscountStartAmount":
                                     startRow["Desc"] = custDetailsRow.Field<string>("Property");
                                     startRow["Val"] = custDetailsRow.Field<string>("Value");
-                                    calcDiscountStart = double.Parse(custDetailsRow.Field<string>("Value"));
+
+                                    if(!double.TryParse(custDetailsRow.Field<string>("Value"), out calcDiscountStart))
+                                    {
+                                        calcDiscountStart = 0.00f;
+                                        AddMessagetoBar("PopulateBilledTicketsDataGrid - Row 324");
+                                    }
                                     break;
 
                                 case "DeliveryCharge":
-                                    deliveryCharge = double.Parse(custDetailsRow.Field<string>("Value"));
+
+                                    startRow["Desc"] = "Delivery";
+                                    startRow["Val"] = custDetailsRow.Field<string>("Value");
+                                    //if(!double.TryParse("0", out deliveryCharge))
+                                    if (!double.TryParse(custDetailsRow.Field<string>("Value"), out deliveryCharge))
+                                    {
+                                        deliveryCharge = 0.00f;
+                                        AddMessagetoBar("PopulateBilledTicketsDataGrid - Row 334");
+                                    }
                                     break;
                             }
 
@@ -321,7 +346,7 @@ namespace LaundryManager
 
                     if(row.Field<string>("Desc") == "DeliveryCount")
                     {
-                        delRowIndex = delRowCounter;
+                        delRowIndex = delRowCounter; //store the location of the delivery information
                     }
                     
                     //find the item
@@ -331,8 +356,15 @@ namespace LaundryManager
                         {
                             if(priceListRow.Field<string>("Desc") == row.Field<string>("Val")) //if the item in the ticket table = the price list table item
                             {
-                                //float fItemPrice = float.Parse(priceListRow.Field<string>("Price"));                    
-                                row["ItemPrice"] = double.Parse(priceListRow.Field<string>("Price"));
+                                //float fItemPrice = float.Parse(priceListRow.Field<string>("Price"));
+                                if(!double.TryParse(priceListRow.Field<string>("Price"), out double pricelistrowval)){
+                                    row["ItemPrice"] = 0.00f;
+                                    AddMessagetoBar(priceListRow[1].ToString() + " has price of : " + priceListRow[2].ToString());
+                                } else
+                                {
+                                    row["ItemPrice"] = pricelistrowval;
+                                }
+                                //row["ItemPrice"] = double.Parse(priceListRow.Field<string>("Price"));
                                 double itemPrice = row.Field<double>("ItemPrice");
                                 int itemQty = int.Parse(row.Field<string>("Count"));
 
@@ -373,10 +405,15 @@ namespace LaundryManager
                 }
 
                 //sort out delivery charge
-                ticketTable.Rows[delRowIndex][3] = deliveryCharge;
-                double calcDeliveryCharge = double.Parse(ticketTable.Rows[delRowIndex][1].ToString()) * deliveryCharge;
-                ticketTable.Rows[delRowIndex][4] = calcDeliveryCharge;
-
+                /////////////////////////////////////////////////////////////////////////////////////////////////////////
+                double calcDeliveryCharge = 0.00f;
+                if (delRowIndex > -1) //was there any delivery information
+                {
+                    ticketTable.Rows[delRowIndex][3] = deliveryCharge;
+                    calcDeliveryCharge = double.Parse(ticketTable.Rows[delRowIndex][1].ToString()) * deliveryCharge;
+                    ticketTable.Rows[delRowIndex][4] = calcDeliveryCharge;
+                } 
+ 
                 //work out the discount
                 ticketTable.Rows.Add(startRow);
                 ticketTable.Rows.Add(DiscountRow);
@@ -418,11 +455,14 @@ namespace LaundryManager
             gridTableOfBillibletickets.Columns.Clear();
             DataColumn TicketNumCol = new DataColumn("Ticket", typeof(string));
             DataColumn TicketDateCol = new DataColumn("Date", typeof(string));
-            DataColumn CustomerNumberCol = new DataColumn("CN", typeof(string));
+            DataColumn CustomerNumberCol = new DataColumn("CN", typeof(int));
             DataColumn ItemTotalCol = new DataColumn("Item Total", typeof(string));
             DataColumn DiscountCol = new DataColumn("Discount", typeof(string));
             DataColumn DiscountPercCol = new DataColumn("Discount %", typeof(string));
-            DataColumn DeliveryCharge = new DataColumn("Delivery", typeof(string));
+            //DataColumn DeliveryCharge = new DataColumn("Deliverys", typeof(string));
+            DataColumn SingleDeliveryCharge = new DataColumn("Del £", typeof(string));
+            DataColumn Deliveries = new DataColumn("Del Count", typeof(string));
+            DataColumn DeliveryTotal = new DataColumn("Del Total", typeof(string));
             DataColumn TicketTotalPrice = new DataColumn("Ticket Total", typeof(string));
             DataColumn UnbilledIndex = new DataColumn("Unbilled Index", typeof(int));
             DataColumn TicketFile = new DataColumn("Ticket File", typeof(string));
@@ -437,7 +477,9 @@ namespace LaundryManager
             gridTableOfBillibletickets.Columns.Add(ItemTotalCol);
             gridTableOfBillibletickets.Columns.Add(DiscountPercCol);
             gridTableOfBillibletickets.Columns.Add(DiscountCol);
-            gridTableOfBillibletickets.Columns.Add(DeliveryCharge);
+            gridTableOfBillibletickets.Columns.Add(SingleDeliveryCharge);
+            gridTableOfBillibletickets.Columns.Add(Deliveries);
+            gridTableOfBillibletickets.Columns.Add(DeliveryTotal);
             gridTableOfBillibletickets.Columns.Add(TicketTotalPrice);
             gridTableOfBillibletickets.Columns.Add(UnbilledIndex);
             gridTableOfBillibletickets.Columns.Add(TicketFile);
@@ -468,7 +510,8 @@ namespace LaundryManager
                             break;
 
                         case "CN":
-                            newGridRow["CN"] = row[1].ToString();
+                            bool cnParseSuccess = int.TryParse(row[1].ToString(), out int cnASint);
+                            newGridRow["CN"] = cnASint;
                             break;
 
                         case "TotalItemsPrice":
@@ -476,7 +519,16 @@ namespace LaundryManager
                             break;
 
                         case "DeliveryCount":
-                            newGridRow["Delivery"] = String.Format("{0:C}", row[4]);
+                            if(row[1].ToString() == "" || row[1].ToString() == "0")
+                            {
+                                //do nothing
+                            }else
+                            {
+                                newGridRow["Del £"] = String.Format("{0:C}", row[3]);
+                                newGridRow["Del Count"] = row[1];
+                                newGridRow["Del Total"] = String.Format("{0:C}", row[4]);
+                            }
+                            
                             break;
 
                         case "Discount %":
@@ -484,7 +536,14 @@ namespace LaundryManager
                             break;
 
                         case "TotalDiscount":
-                            newGridRow["Discount"] = String.Format("{0:C}", row[4]);
+                            if(row[4].ToString() == "" || row[4].ToString() == "0")
+                            {
+                                //do nothing
+                            } else
+                            {
+                                newGridRow["Discount"] = String.Format("{0:C}", row[4]);
+                            }
+                            
                             break;
 
                         case "TotalTicketPrice":
@@ -498,8 +557,14 @@ namespace LaundryManager
 
             //display the new grid
             dataGridUnbilledTickets.ItemsSource = new DataView(gridTableOfBillibletickets);
-            dataGridUnbilledTickets.Columns[9].Visibility = Visibility.Hidden; //hide the index
-            //dataGridUnbilledTickets.Columns[10].Visibility = Visibility.Hidden; //hide the ticket file
+            dataGridUnbilledTickets.Columns[7].Visibility = Visibility.Hidden; //hide the single delivery price
+            dataGridUnbilledTickets.Columns[11].Visibility = Visibility.Hidden; //hide the index
+            dataGridUnbilledTickets.Columns[0].IsReadOnly = false;
+            for(int col = 1; col < 11; col++)
+            {
+                dataGridUnbilledTickets.Columns[col].IsReadOnly = true;
+            }
+            dataGridUnbilledTickets.Columns[12].Visibility = Visibility.Hidden; //hide the ticket file
             //dataGridJSShortCodes.ItemsSource = new DataView(shortCodesData);
 
         }
@@ -508,6 +573,13 @@ namespace LaundryManager
         {
             DataTable PriceListsTable = new();
             PriceListsTable.Columns.AddRange(new DataColumn[3] { new DataColumn("Name"), new DataColumn("Date"), new DataColumn("Path") });
+
+            //check if the pricelists fold exists
+            if (!Directory.Exists(glob_PriceListsFolder))
+            {
+                Directory.CreateDirectory(glob_PriceListsFolder);
+            }
+
             string[] priceLists = Directory.GetFiles(glob_PriceListsFolder, "*", SearchOption.TopDirectoryOnly);
             XmlDocument xmlDocument = new();
             
@@ -792,9 +864,10 @@ namespace LaundryManager
             {
                 CreateCSVFile(XeroFinalTable);
             }
-            
+
 
             //close the window
+            MessageBox.Show("Xero File Created", "File Created");
             this.Close();
 
         }
@@ -1059,31 +1132,25 @@ namespace LaundryManager
 
         DataTable GetTicketsUserWants()
         {
-            //got through the datagrid to see which tickets to bill
-            IEnumerable list = dataGridUnbilledTickets.ItemsSource as IEnumerable;
 
             DataTable dt = new();
             DataColumn ticketName = new DataColumn("Ticket", typeof(string));
-
-            //dataGridUnbilledTickets.Columns[10].Visibility = Visibility.Visible; //hide the ticket file
             dt.Columns.Add(ticketName);
 
-            foreach (var row in list)
-            {
-                bool IsChecked = (bool)((CheckBox)dataGridUnbilledTickets.Columns[0].GetCellContent(row)).IsChecked;
+            DataView dataview = (DataView)dataGridUnbilledTickets.ItemsSource;
 
-                if (IsChecked)
+            DataTable dataGridAsTable = dataview.Table.Copy();           
+
+            foreach(DataRow datarow in dataGridAsTable.Rows)
+            {
+                if(datarow[0].ToString() == "True")
                 {
-                    DataRow newRow = dt.NewRow();
-                    TextBlock textBlock = dataGridUnbilledTickets.Columns[10].GetCellContent(row) as TextBlock;
-                    newRow[0] = textBlock.Text;
-                    dt.Rows.Add((newRow));
+                    DataRow newDtRow = dt.NewRow();
+                    newDtRow[0] = datarow[10].ToString();
+                    dt.Rows.Add(newDtRow);
                 }
             }
-
-            //dataGridUnbilledTickets.Columns[10].Visibility = Visibility.Hidden; //hide the ticket file
-
-            return dt;
+            return dt;            
 
         }
 

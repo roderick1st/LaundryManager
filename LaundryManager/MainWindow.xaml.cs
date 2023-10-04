@@ -194,17 +194,6 @@ namespace LaundryManager
             addCustomerForm.CustomerInfoChange += AddCustomerForm_CustomerInfoChange;
             addCustomerForm.ShowDialog();
 
-            //using (FormOptions formOptions = new FormOptions())
-            //{
-                // passing this in ShowDialog will set the .Owner 
-                // property of the child form
-                //formOptions.ShowDialog(this);
-            //}
-            //In the child form, use this code to pass a value back to the parent:
-
-            //ParentForm parent = (ParentForm)this.Owner;
-            //parent.NotifyMe("whatever");
-
         }
 
         private void AddCustomerForm_CustomerInfoChange(bool obj)
@@ -232,18 +221,15 @@ namespace LaundryManager
 
         private void buttonBilling_Click(object sender, RoutedEventArgs e)
         {
-            Billing billing = new Billing();
+            Billing billing = new();
             billing.ShowDialog();
         }
 
         private void buttonBackup_Click(object sender, RoutedEventArgs e)
         {
 
-            //BackupForm backupForm = new BackupForm();
-            //backupForm.ShowDialog();
-
-            Test test = new Test();
-            test.ShowDialog();
+            BackupForm backupForm = new BackupForm();
+            backupForm.ShowDialog();
 
         }
 

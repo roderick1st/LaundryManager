@@ -133,7 +133,7 @@ namespace LaundryManager
 
                             //deal with legacy issues
                            
-
+                            /*
                             if (childnode.Name == "option2")
                             {
                                 legacyRepairComplete = false;
@@ -161,6 +161,7 @@ namespace LaundryManager
                                 node.RemoveChild(childnode);
 
                             }
+                            */
 
                             recordCounter++;
                         }

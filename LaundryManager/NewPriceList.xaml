@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LaundryManager"
         mc:Ignorable="d"
-        Title="NewPriceList" Height="450" Width="800"
+        Title="NewPriceList" Height="450" Width="400"
         Loaded="Price_List_Window_Loaded">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -23,20 +23,21 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
-        <StackPanel Grid.Column="0" >
+        <StackPanel Grid.Column="0" Grid.ColumnSpan="2" >
             <Label Content="Price List Name:" />
         </StackPanel>
-        <StackPanel Grid.Column="1" Grid.ColumnSpan="3">
+        <StackPanel Grid.Column="2" Grid.ColumnSpan="5">
             <TextBox x:Name="TxtBoxPriceListName" Margin="0 6 0 0"/>
         </StackPanel>
         <StackPanel Grid.ColumnSpan="8" Grid.Row="1">
-            <DataGrid x:Name="ItemsPricingDataGrid" d:ItemsSource="{d:SampleData ItemCount=5}" CanUserAddRows="False"/>
+            <DataGrid x:Name="ItemsPricingDataGrid" d:ItemsSource="{d:SampleData ItemCount=5}" CanUserAddRows="False" HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Auto" Height="330" Width="400" HorizontalAlignment="Left"/>
         </StackPanel>
-        <StackPanel Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2">
-            <Button x:Name="btn_Save" Content="Save" Height="40" Margin="5 5 5 5" Click="btn_Save_Click"/>
+        <StackPanel Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3">
+            <Button x:Name="btn_Save" Content="Save" Height="40" Margin="5 5 5 5" Click="btn_Save_Click" Background="GreenYellow"/>
         </StackPanel>
-        <StackPanel Grid.Column="2" Grid.Row="2" Grid.ColumnSpan="2">
-            <Button x:Name="btn_Cancel" Content="Cancel" Height="40" Margin="5 5 5 5" Click="btn_Cancel_Click"/>
+        <StackPanel Grid.Column="5" Grid.Row="2" Grid.ColumnSpan="3">
+            <Button x:Name="btn_Cancel" Content="Cancel" Height="40" Margin="5 5 5 5" Click="btn_Cancel_Click" Background="DarkOrange"/>
         </StackPanel>
 
 
