@@ -32,12 +32,23 @@ namespace LaundryManager
         string glob_CustomerDetailsXML = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Laundry\\CustomerDetails.xml";
         DataTable gridTableOfBillibletickets = new();
         DataTable glob_PriceListsTable;
+        DataTable glob_TicketIssues = new();
         DataSet unbilledTicketsDataSet = new(); //tickets that are unbilled
         DataSet billableTickets = new(); //tickets within the date range that are unbilled
         //DataSet finnishedTickets = new(); //because we need a new table after adding items in billabletickets
         DataSet customerDetails = new();
         DataTable priceListUsed = new();
         bool firstRun = true;
+
+        //glob constants
+        const string CONST_noDelPrice = "Delivery included but there is no price";
+        const string CONST_noXeroCode = "Item has no Xero code set";
+        const string CONST_emptyTicket = "Ticket is Empty";
+        const string CONST_ok = "OK";
+
+        const string CONST_discountCode = "200-999";
+        const string CONST_vatLable = "No VAT";
+
 
 
         public Billing()
@@ -49,58 +60,38 @@ namespace LaundryManager
         private void DataGridRowHeader_Click(object sender, RoutedEventArgs e)
         {
             
-            /*
-            //get the selected row.
-            DependencyObject dep = (DependencyObject)e.OriginalSource;
 
-            while ((dep != null) && (dep is not DataGridRowHeader))
-            {
-                dep = VisualTreeHelper.GetParent(dep);
-            }
+        }
 
-            if (dep == null)
-                return;
-
-            if (dep is DataGridRowHeader)
-            {
-                DataGridRowHeader rowheader = dep as DataGridRowHeader;
-                while ((dep != null) && (dep is not DataGridRow))
-                {
-                    dep = VisualTreeHelper.GetParent(dep);
-                }
-                DataGridRow row = dep as DataGridRow;
-                SolidColorBrush red = new SolidColorBrush(Colors.Red);
-                SolidColorBrush white = new SolidColorBrush(Colors.White);
-                string sRed = red.Color.ToString();
-                string sWhite = white.Color.ToString();
-                string rowColour = row.Background.ToString();
-
-                if (rowColour != sRed)
-                {
-                    row.Background = red;
-              
-                } else
-                {
-                    row.Background = white;
-                }
-                
-
-            }
-
-            //DataGridRow newrow = 
-
-            */
+        private bool AssignTicketIssueToTable(string ticketNum, string issue , int callingID)
+        {
+            //calling ID is for debug
+            DataRow newIssueRow = glob_TicketIssues.NewRow();
+            newIssueRow["TicketNum"] = ticketNum.ToString();
+            newIssueRow["Issue"] = issue;
+            glob_TicketIssues.Rows.Add(newIssueRow);
+            return true;
         }
 
         private void Billing_Window_Loaded(object sender, RoutedEventArgs e)
         {
             this.WindowState = WindowState.Maximized;
+            BuildTicketIssuesTable();
             SortDateOut();
             LoadPriceLists();
             LoadCustomerInformation();
             LoadTicketsIntoDataSet();
             PopulateBilledTicketsDataGrid();
             firstRun = false;
+        }
+
+        private void BuildTicketIssuesTable()
+        {
+            DataColumn ticketNumCol = new DataColumn("TicketNum", typeof(string));
+            DataColumn ticketItemIssue = new DataColumn("Issue", typeof(string));
+
+            glob_TicketIssues.Columns.Add(ticketNumCol);
+            glob_TicketIssues.Columns.Add(ticketItemIssue);
         }
 
         private void LoadCustomerInformation()
@@ -187,64 +178,88 @@ namespace LaundryManager
             lblMessageBar.Content = message;
         }
 
-        private void PopulateBilledTicketsDataGrid()
+        private void CollectValidTickets()
         {
-            DateTime startDate;
-            DateTime endDate;
+            DateTime startDate = CheckDates(true);
+            DateTime endDate = CheckDates(false);
 
-            //float totalTicketPrice = 0.00F;
-
-            //clear out the global datasets
-            ClearDataSets();
-            startDate = CheckDates(true);
-            endDate = CheckDates(false);
-            
             //string rowHeading;
             //loopthrough the ticket dataset and get all tickets that fall in the date range
-            foreach(DataTable ticketTable in unbilledTicketsDataSet.Tables)
+            foreach (DataTable unbilledTicketTable in unbilledTicketsDataSet.Tables)
             {
                 bool ticketInDateRange = false;
                 bool ticketNotBilled = false;
 
-                //get the date of the ticket
-                foreach(DataRow row in ticketTable.Rows)
+                //lets find the date of the ticket
+                foreach (DataRow unbilledTicketTableRow in unbilledTicketTable.Rows)                             //loop each row in the unbilledTicketTable
                 {
-                   
-                    if(row.Field<string>("Desc") == "TicketDate") //Date of the ticket found
-                    {
-                        //get the date
-                        DateTime TicketDate = DateTime.Parse(row.Field<string>("Val"));
-                        int dateCompareStartResult = DateTime.Compare(TicketDate, startDate);
-                        int dateCompareEndResult = DateTime.Compare(TicketDate, endDate);
 
-                        //if(TicketDate >= startDate && TicketDate <= endDate) //not right some how
-                        if(dateCompareStartResult >= 0 && dateCompareEndResult <= 0)
-                        {
-                            ticketInDateRange = true;
-                            //ticket can be included in billing
-                            //billableTickets.Tables.Add(ticketTable.Copy());
-                            //break; //get out of the current ticket.
-                        }
-                    }
-                      if(row.Field<string>("Desc") == "TicketBilled")
+                    if (unbilledTicketTableRow.Field<string>("Desc") == "TicketDate")                            //Date of the ticket found
                     {
-                        if(row.Field<string>("Val") == "NO")
+                        DateTime TicketDate = DateTime.Parse(unbilledTicketTableRow.Field<string>("Val"));      //get the date
+                        int dateCompareStartResult = DateTime.Compare(TicketDate, startDate);                   //compare the date against our start date
+                        int dateCompareEndResult = DateTime.Compare(TicketDate, endDate);                       //compare the date against our end date
+
+                        if (dateCompareStartResult >= 0 && dateCompareEndResult <= 0)                            //if the date falls between our start and end date
                         {
-                            ticketNotBilled = true;
+                            ticketInDateRange = true;                                                           //it can be added
                         }
-                        
                     }
-                    
+                    if (unbilledTicketTableRow.Field<string>("Desc") == "TicketBilled")                        //has the ticket already been billed
+                    {
+                        if (unbilledTicketTableRow.Field<string>("Val") == "NO")
+                        {
+                            ticketNotBilled = true;                                                             //ticket has not been billed
+                        }
+
+                    }
+
                 }
 
-                if(ticketInDateRange && ticketNotBilled)
+                if (ticketInDateRange && ticketNotBilled)                                                        //if the ticket is billable
                 {
-                    billableTickets.Tables.Add(ticketTable.Copy());
-
-                    //we have added the ticket as unbilled and within the date range
-                    //so lets check the deliverys billing amount and the discount amount
+                    billableTickets.Tables.Add(unbilledTicketTable.Copy());                                     //add it to the billable tickets table
                 }
             }
+        }
+
+        private void AddNewColumnsToBillableTickets()
+        {
+            foreach (DataTable billableTicketTable in billableTickets.Tables)                           //loop through each table in the billableTickets Dataset
+            {
+                DataColumnCollection columnNames = billableTicketTable.Columns;                         //check to see if the columns already exist
+
+                if (!columnNames.Contains("ItemPrice"))
+                {
+                    billableTicketTable.Columns.Add("ItemPrice", typeof(double));
+                }
+                if (!columnNames.Contains("ItemTotalPrice"))
+                {
+                    billableTicketTable.Columns.Add("ItemTotalPrice", typeof(double));
+                }
+            }
+        }
+
+        private void PopulateBilledTicketsDataGrid()
+        {
+
+            bool totalTicketPriceExists = false;
+            int totalTicketPriceRowIndex = 0;
+
+            //variables to controll columns
+            //int singleDeliveryPriceColumn = 5;
+            int indexColumn = 9;
+            int ticketFileColumn = 10;
+            int totalColumns = ticketFileColumn;
+
+            //float totalTicketPrice = 0.00F;
+
+            //clear out the global datasets
+            ClearDataSets();                        //clear out all old data
+            CollectValidTickets();                  //load all tickets that fit correct range into billableTickets dataset
+            AddNewColumnsToBillableTickets();       //adds the ItemPrice and ItemTotalPrice Columns
+
+            
 
             //all the tickets we are interested in are in billableTickets
             //loop each ticket, get the CN number and pull the relavant pricing data from the customerDetails table
@@ -255,87 +270,95 @@ namespace LaundryManager
             
             //current price list is stored in PriceListUsed - loaded when we clicked on the price list listbox
             //foreach(DataTable ticketTable in unbilledTicketsDataSet.Tables)
-            foreach (DataTable ticketTable in billableTickets.Tables)
+            foreach (DataTable billableTicketTable in billableTickets.Tables)                           //loop through each table in the billableTickets Dataset
                 {
 
-                //DataTable newFinnishedTable = ticketTable.Copy();
-                //finnishedTicket.Tables.Add(ticketTable.Copy()); //copy the table
+                DataRow discountPercRow = billableTicketTable.NewRow();
+                DataRow discountStartAmountRow = billableTicketTable.NewRow();
+                //DataRow deliveryAmountRow = billableTicketTable.NewRow();
+                DataRow customerName = billableTicketTable.NewRow();
 
-                //check to see if the columns already exist
-                DataColumnCollection columnNames = ticketTable.Columns;
-
-                if (!columnNames.Contains("ItemPrice"))
-                {
-                    ticketTable.Columns.Add("ItemPrice", typeof(double));
-                }
-                if (!columnNames.Contains("ItemTotalPrice"))
-                {
-                    ticketTable.Columns.Add("ItemTotalPrice", typeof (double));
-                }
-
-                //totalTicketPrice = 0.00F; //reset the price to 0 for the next ticket
-                bool totalTicketPriceExists = false;
-                int totalTicketPriceRowIndex = 0;
-
-                DataRow DiscountRow = ticketTable.NewRow();
-                DataRow startRow = ticketTable.NewRow();
-                double deliveryCharge = 0.00f;
-                double calcDiscountStart = 0.00f;
-                double calcDiscountPercent = 0.00f;
-                double calcDiscountTotal = 0.00f;
-                double calcFinalTicketPrice = 0.00f;
-                double totalItemsPrice = 0.00F;
-                double totalTicketPrice = 0.00f;
+                DataRow newBillableTicketTableRow = billableTicketTable.NewRow();                          
+                double custDeliveryChargePerRun = 0.00f;
+                double custDiscountStart = 0.00f;
+                double custDiscountPercent = 0.00f;
+                //double custDiscountTotal = 0.00f;
+                //double calcFinalTicketPrice = 0.00f;
+                double totalItemsPrice = 0.00f;
+                //double totalTicketPrice = 0.00f;
                 int delRowIndex = -1;
                 int delRowCounter = 0;
+                string customerFirstName = "";
+                string customerLastName = "";
                 
 
-                foreach (DataRow row in ticketTable.Rows) //loop each row in the table
-                {
-
+                foreach (DataRow billableTicketTableRow in billableTicketTable.Rows)                                       //loop each row in the billableTickets data table
+                {                   
                     //find the CN number 
-                    if(row.Field<string>("Desc") == "CN")
+                    if(billableTicketTableRow.Field<string>("Desc") == "CN")                                               //find the customer number
                     {
-                        string customerNumber = "CN" + row.Field<string>("Val").ToString();
+                        string customerNumber = "CN" + billableTicketTableRow.Field<string>("Val").ToString();             //make the customer number
                         //look up the customer in the customer table
                         //Add required data to the processing ticket
-                        foreach(DataRow custDetailsRow in customerDetails.Tables[customerNumber].Rows)
-                        {      
+                        foreach(DataRow custDetailsRow in customerDetails.Tables[customerNumber].Rows)  //loop through the customer data for the current customer
+                        { 
+                            //we want to find the customers:
+                            //Discount %
+                            //Discount Start Amount
+                            //Delivery Charge
                             
-                            switch (custDetailsRow.Field<string>("Property")){
-                                //case "DiscountPrice":
+                            switch (custDetailsRow.Field<string>("Property")){                          //scan the customer 
+     
                                 case "DiscountPercent":
-                                    DiscountRow["Desc"] = "Discount %";
-                                    DiscountRow["Val"] = custDetailsRow.Field<string>("Value");
+                                    
+                                    discountPercRow["Desc"] = "Discount %";
+                                    discountPercRow["Val"] = custDetailsRow.Field<string>("Value");
 
-                                    if(!double.TryParse(custDetailsRow.Field<string>("Value"), out calcDiscountPercent))
+                                    if(!double.TryParse(custDetailsRow.Field<string>("Value"), out custDiscountPercent))
                                     {
-                                        calcDiscountPercent = 0.00f;
+                                        custDiscountPercent = 0.00f;
                                         AddMessagetoBar("PopulateBilledTicketsDataGrid - Row 312");
                                     }
+                                    
                                     break;
 
                                 case "DiscountStartAmount":
-                                    startRow["Desc"] = custDetailsRow.Field<string>("Property");
-                                    startRow["Val"] = custDetailsRow.Field<string>("Value");
+                                    
+                                    discountStartAmountRow["Desc"] = custDetailsRow.Field<string>("Property");
+                                    discountStartAmountRow["Val"] = custDetailsRow.Field<string>("Value");
 
-                                    if(!double.TryParse(custDetailsRow.Field<string>("Value"), out calcDiscountStart))
+                                    if(!double.TryParse(custDetailsRow.Field<string>("Value"), out custDiscountStart))
                                     {
-                                        calcDiscountStart = 0.00f;
+                                        custDiscountStart = 0.00f;
                                         AddMessagetoBar("PopulateBilledTicketsDataGrid - Row 324");
+                                    }
+                                    
+                                    break;
+
+                                case "DeliveryCharge":                                  
+                                    
+                                    //deliveryAmountRow["Desc"] = "Delivery";
+                                    //deliveryAmountRow["Val"] = custDetailsRow.Field<string>("Value");
+                                    if (!double.TryParse(custDetailsRow.Field<string>("Value"), out custDeliveryChargePerRun))
+                                    {
+                                        if(custDetailsRow.Field<string>("Value") != "")
+                                        {
+                                            AddMessagetoBar("PopulateBilledTicketsDataGrid - Row 334 - Delivery charge issue");
+                                        }
+
+                                    //    custDeliveryCharge = 0.00f;
+                                        
                                     }
                                     break;
 
-                                case "DeliveryCharge":
+                                case "FirstName":
+                                    customerFirstName = custDetailsRow.Field<string>("Value").ToString();
 
-                                    startRow["Desc"] = "Delivery";
-                                    startRow["Val"] = custDetailsRow.Field<string>("Value");
-                                    //if(!double.TryParse("0", out deliveryCharge))
-                                    if (!double.TryParse(custDetailsRow.Field<string>("Value"), out deliveryCharge))
-                                    {
-                                        deliveryCharge = 0.00f;
-                                        AddMessagetoBar("PopulateBilledTicketsDataGrid - Row 334");
-                                    }
+                                    break;
+
+                                case "LastName":
+                                    customerLastName = custDetailsRow.Field<string>("Value").ToString();
+
                                     break;
                             }
 
@@ -344,34 +367,34 @@ namespace LaundryManager
 
                     }
 
-                    if(row.Field<string>("Desc") == "DeliveryCount")
+                    if(billableTicketTableRow.Field<string>("Desc") == "DeliveryCount") //get the number of deliveries
                     {
                         delRowIndex = delRowCounter; //store the location of the delivery information
                     }
                     
                     //find the item
-                    if(row.Field<string>("Desc") == "Item")
+                    if(billableTicketTableRow.Field<string>("Desc") == "Item")
                     {
                         foreach(DataRow priceListRow in priceListUsed.Rows) //loop through the price list table
                         {
-                            if(priceListRow.Field<string>("Desc") == row.Field<string>("Val")) //if the item in the ticket table = the price list table item
+                            if(priceListRow.Field<string>("Desc") == billableTicketTableRow.Field<string>("Val")) //if the item in the ticket table = the price list table item
                             {
                                 //float fItemPrice = float.Parse(priceListRow.Field<string>("Price"));
                                 if(!double.TryParse(priceListRow.Field<string>("Price"), out double pricelistrowval)){
-                                    row["ItemPrice"] = 0.00f;
+                                    billableTicketTableRow["ItemPrice"] = 0.00f;
                                     AddMessagetoBar(priceListRow[1].ToString() + " has price of : " + priceListRow[2].ToString());
                                 } else
                                 {
-                                    row["ItemPrice"] = pricelistrowval;
+                                    billableTicketTableRow["ItemPrice"] = pricelistrowval;
                                 }
                                 //row["ItemPrice"] = double.Parse(priceListRow.Field<string>("Price"));
-                                double itemPrice = row.Field<double>("ItemPrice");
-                                int itemQty = int.Parse(row.Field<string>("Count"));
+                                double itemPrice = billableTicketTableRow.Field<double>("ItemPrice");
+                                int itemQty = int.Parse(billableTicketTableRow.Field<string>("Count"));
 
                                 //double totalPriceone = Math.Round(6.342, 2, MidpointRounding.ToPositiveInfinity);
 
                                 double totalPrice = Math.Round((itemPrice * itemQty),2,MidpointRounding.AwayFromZero);
-                                row["ItemTotalPrice"] = totalPrice;
+                                billableTicketTableRow["ItemTotalPrice"] = totalPrice;
                                 totalItemsPrice = (double)(totalItemsPrice + totalPrice);
                             }
 
@@ -379,15 +402,28 @@ namespace LaundryManager
                     }
 
                     //check to see if we have a totalticketprice row
-                    if (row.Field<string>("Desc") == "TotalItemsPrice")
+                    if (billableTicketTableRow.Field<string>("Desc") == "TotalItemsPrice")
                     {
                         totalTicketPriceExists = true;
-                        totalTicketPriceRowIndex = ticketTable.Rows.IndexOf(row);
+                        totalTicketPriceRowIndex = billableTicketTable.Rows.IndexOf(billableTicketTableRow);
                     }
 
                     delRowCounter++;
 
                 }
+                //resolve the customer name
+                customerName["desc"] = "CustomerName";
+                customerName["Val"] = customerFirstName + " " + customerLastName;
+                customerFirstName = "";
+                customerLastName = "";
+                billableTicketTable.Rows.Add(customerName);
+
+                //add the new data rows
+                billableTicketTable.Rows.Add(discountPercRow);
+                billableTicketTable.Rows.Add(discountStartAmountRow);
+                //billableTicketTable.Rows.Add(deliveryAmountRow);
+
+                //finished looping each row of the ticket table
 
                 //add the new data to the billable tickets tables             
 
@@ -395,55 +431,43 @@ namespace LaundryManager
                 if (!totalTicketPriceExists)
                 {
                     //add the total price to the ticket
-                    DataRow totalItemsPriceRow = ticketTable.NewRow();
+                    DataRow totalItemsPriceRow = billableTicketTable.NewRow();
                     totalItemsPriceRow["Desc"] = "TotalItemsPrice";
-                    totalItemsPriceRow["ItemTotalPrice"] = totalItemsPrice;
-                    ticketTable.Rows.Add(totalItemsPriceRow);
+                    totalItemsPriceRow["ItemTotalPrice"] = Math.Round(totalItemsPrice, 2, MidpointRounding.AwayFromZero);
+                    billableTicketTable.Rows.Add(totalItemsPriceRow);
                 } else
                 {
-                    ticketTable.Rows[totalTicketPriceRowIndex]["ItemTotalPrice"] = totalItemsPrice;
+                    billableTicketTable.Rows[totalTicketPriceRowIndex]["ItemTotalPrice"] = totalItemsPrice;
                 }
 
                 //sort out delivery charge
                 /////////////////////////////////////////////////////////////////////////////////////////////////////////
                 double calcDeliveryCharge = 0.00f;
+
+                //add the price per delivery to the table
+                //billableTicketTable.Rows[delRowIndex][3] = custDeliveryChargePerRun;
+
                 if (delRowIndex > -1) //was there any delivery information
                 {
-                    ticketTable.Rows[delRowIndex][3] = deliveryCharge;
-                    calcDeliveryCharge = double.Parse(ticketTable.Rows[delRowIndex][1].ToString()) * deliveryCharge;
-                    ticketTable.Rows[delRowIndex][4] = calcDeliveryCharge;
-                } 
- 
-                //work out the discount
-                ticketTable.Rows.Add(startRow);
-                ticketTable.Rows.Add(DiscountRow);
-
-                //whats the total price?
-                //totalTicketPrice
-
-                //discount start price - calDiscountStart
-
-                //discount percent - calDiscountPercent
-
-                //work out the discount
-                if(totalItemsPrice - calcDiscountStart > 0)
-                {
-                    calcDiscountTotal = Math.Round((calcDiscountPercent * (totalItemsPrice - calcDiscountStart)) / 100, 2, MidpointRounding.ToZero);                   
+                    billableTicketTable.Rows[delRowIndex][3] = custDeliveryChargePerRun;
+                    if(!double.TryParse(billableTicketTable.Rows[delRowIndex][1].ToString(), out double deliveryRunCharge) || !double.TryParse(billableTicketTable.Rows[delRowIndex][3].ToString(), out double deliveryRuns))
+                    {
+                        AddMessagetoBar("PopulateBilledTicketsDataGrid - Deliver Calc problem");
+                    } else
+                    {
+                        calcDeliveryCharge = Math.Round((double.Parse(billableTicketTable.Rows[delRowIndex][1].ToString()) * double.Parse(billableTicketTable.Rows[delRowIndex][3].ToString())), 2, MidpointRounding.AwayFromZero);
+                        billableTicketTable.Rows[delRowIndex][4] = calcDeliveryCharge;
+                    }
+                    
                 }
 
-                totalTicketPrice = Math.Round(totalItemsPrice - calcDiscountTotal + calcDeliveryCharge,2, MidpointRounding.AwayFromZero);
-
-                //add the discount information to the main table
-                DataRow totalDiscountRow = ticketTable.NewRow();
-                totalDiscountRow["Desc"] = "TotalDiscount";
-                totalDiscountRow["ItemTotalPrice"] = calcDiscountTotal;
-                ticketTable.Rows.Add(totalDiscountRow);
 
                 //add the final price to the main table
-                DataRow totalTicketPriceRow = ticketTable.NewRow();
+                double totalTicketPrice = Math.Round(totalItemsPrice + calcDeliveryCharge, 2, MidpointRounding.AwayFromZero);
+                DataRow totalTicketPriceRow = billableTicketTable.NewRow();
                 totalTicketPriceRow["Desc"] = "TotalTicketPrice";
                 totalTicketPriceRow["ItemTotalPrice"] = totalTicketPrice;
-                ticketTable.Rows.Add(totalTicketPriceRow);
+                billableTicketTable.Rows.Add(totalTicketPriceRow);
 
 
             }
@@ -453,16 +477,17 @@ namespace LaundryManager
             //loop the newly created billable tickets
             gridTableOfBillibletickets.Clear();
             gridTableOfBillibletickets.Columns.Clear();
-            DataColumn TicketNumCol = new DataColumn("Ticket", typeof(string));
+            DataColumn TicketNumCol = new DataColumn("Ticket", typeof(int));
             DataColumn TicketDateCol = new DataColumn("Date", typeof(string));
             DataColumn CustomerNumberCol = new DataColumn("CN", typeof(int));
-            DataColumn ItemTotalCol = new DataColumn("Item Total", typeof(string));
+            DataColumn CustomerNameCol = new DataColumn("Name", typeof(string));
+            DataColumn ItemTotalCol = new DataColumn("Items £", typeof(string));
+            //DataColumn DiscountCol = new DataColumn("Discount Start", typeof(string));
             DataColumn DiscountCol = new DataColumn("Discount", typeof(string));
-            DataColumn DiscountPercCol = new DataColumn("Discount %", typeof(string));
             //DataColumn DeliveryCharge = new DataColumn("Deliverys", typeof(string));
-            DataColumn SingleDeliveryCharge = new DataColumn("Del £", typeof(string));
-            DataColumn Deliveries = new DataColumn("Del Count", typeof(string));
-            DataColumn DeliveryTotal = new DataColumn("Del Total", typeof(string));
+            //DataColumn SingleDeliveryCharge = new DataColumn("Del £", typeof(string));
+            //DataColumn Deliveries = new DataColumn("Del Count", typeof(string));
+            DataColumn DeliveryTotal = new DataColumn("Delivery", typeof(string));
             DataColumn TicketTotalPrice = new DataColumn("Ticket Total", typeof(string));
             DataColumn UnbilledIndex = new DataColumn("Unbilled Index", typeof(int));
             DataColumn TicketFile = new DataColumn("Ticket File", typeof(string));
@@ -474,11 +499,12 @@ namespace LaundryManager
             gridTableOfBillibletickets.Columns.Add(TicketNumCol);
             gridTableOfBillibletickets.Columns.Add(TicketDateCol);
             gridTableOfBillibletickets.Columns.Add(CustomerNumberCol);
-            gridTableOfBillibletickets.Columns.Add(ItemTotalCol);
-            gridTableOfBillibletickets.Columns.Add(DiscountPercCol);
+            gridTableOfBillibletickets.Columns.Add(CustomerNameCol);
             gridTableOfBillibletickets.Columns.Add(DiscountCol);
-            gridTableOfBillibletickets.Columns.Add(SingleDeliveryCharge);
-            gridTableOfBillibletickets.Columns.Add(Deliveries);
+            gridTableOfBillibletickets.Columns.Add(ItemTotalCol);
+            //gridTableOfBillibletickets.Columns.Add(DiscountCol);
+            //gridTableOfBillibletickets.Columns.Add(SingleDeliveryCharge);
+            //gridTableOfBillibletickets.Columns.Add(Deliveries);
             gridTableOfBillibletickets.Columns.Add(DeliveryTotal);
             gridTableOfBillibletickets.Columns.Add(TicketTotalPrice);
             gridTableOfBillibletickets.Columns.Add(UnbilledIndex);
@@ -488,6 +514,10 @@ namespace LaundryManager
             foreach (DataTable billableTicket in billableTickets.Tables)
             {
                 DataRow newGridRow = gridTableOfBillibletickets.NewRow();
+
+                string discountRateForDisplay = "";
+                string discountPercentForDisplay = "";
+                double deliveryCharge = 0.00f;
 
                 newGridRow["Unbilled Index"] = unbilledIndex++;
                 newGridRow["Ticket File"] = billableTicket.TableName;
@@ -500,7 +530,7 @@ namespace LaundryManager
                     {
                      
                         case "TicketNumber":
-                            newGridRow["Ticket"] = row[1].ToString();
+                            newGridRow["Ticket"] = int.Parse(row[1].ToString());
                             break;
 
                         case "TicketDate":
@@ -514,37 +544,36 @@ namespace LaundryManager
                             newGridRow["CN"] = cnASint;
                             break;
 
+                        case "CustomerName":
+                            newGridRow["Name"] = row[1].ToString();
+                            break;
+
                         case "TotalItemsPrice":
-                            newGridRow["Item Total"] = String.Format("{0:C}", row[4]);
+                            newGridRow["Items £"] = String.Format("{0:C}", row[4]);
                             break;
 
                         case "DeliveryCount":
-                            if(row[1].ToString() == "" || row[1].ToString() == "0")
+                            if(row[1].ToString() != "" & row[1].ToString() != "0")
                             {
+                                newGridRow["Delivery"] = String.Format("{0:C}", row[4]);
                                 //do nothing
-                            }else
-                            {
-                                newGridRow["Del £"] = String.Format("{0:C}", row[3]);
-                                newGridRow["Del Count"] = row[1];
-                                newGridRow["Del Total"] = String.Format("{0:C}", row[4]);
+                                //}else
+                                // {
+                                //     newGridRow["Del £"] = String.Format("{0:C}", row[3]);
+                                //    newGridRow["Del Count"] = row[1];
+                                //    newGridRow["Del Total"] = String.Format("{0:C}", row[4]);
                             }
                             
                             break;
 
                         case "Discount %":
-                            newGridRow["Discount %"] = row[1];
+                            discountPercentForDisplay = row[1].ToString();
                             break;
 
-                        case "TotalDiscount":
-                            if(row[4].ToString() == "" || row[4].ToString() == "0")
-                            {
-                                //do nothing
-                            } else
-                            {
-                                newGridRow["Discount"] = String.Format("{0:C}", row[4]);
-                            }
-                            
+                        case "DiscountStartAmount":
+                            discountRateForDisplay = row[1].ToString();
                             break;
+
 
                         case "TotalTicketPrice":
                             newGridRow["Ticket Total"] = String.Format("{0:C}", row[4]);
@@ -552,19 +581,21 @@ namespace LaundryManager
                     }
                 }
 
+                newGridRow["Discount"] = discountPercentForDisplay + "%" + " | £" + discountRateForDisplay;
+
                 gridTableOfBillibletickets.Rows.Add(newGridRow);
             }
 
             //display the new grid
             dataGridUnbilledTickets.ItemsSource = new DataView(gridTableOfBillibletickets);
-            dataGridUnbilledTickets.Columns[7].Visibility = Visibility.Hidden; //hide the single delivery price
-            dataGridUnbilledTickets.Columns[11].Visibility = Visibility.Hidden; //hide the index
+            //dataGridUnbilledTickets.Columns[singleDeliveryPriceColumn].Visibility = Visibility.Hidden; //hide the single delivery price
+            dataGridUnbilledTickets.Columns[indexColumn].Visibility = Visibility.Hidden; //hide the index
             dataGridUnbilledTickets.Columns[0].IsReadOnly = false;
-            for(int col = 1; col < 11; col++)
+            for(int col = 1; col < totalColumns; col++)
             {
                 dataGridUnbilledTickets.Columns[col].IsReadOnly = true;
             }
-            dataGridUnbilledTickets.Columns[12].Visibility = Visibility.Hidden; //hide the ticket file
+            dataGridUnbilledTickets.Columns[ticketFileColumn].Visibility = Visibility.Hidden; //hide the ticket file
             //dataGridJSShortCodes.ItemsSource = new DataView(shortCodesData);
 
         }
@@ -609,16 +640,10 @@ namespace LaundryManager
                 listBoxPriceLists.Items.Add(row["Name"] + "   -   " + row["Date"]);
             }
 
-            if(listBoxPriceLists.Items.Count > 0)
+            if (listBoxPriceLists.Items.Count > 0)
             {
                 listBoxPriceLists.SelectedIndex = 0;
             }
-
-
-            
-
-
-
         }
 
         private void LoadTicketsIntoDataSet()
@@ -821,35 +846,229 @@ namespace LaundryManager
           
         }
 
+        private DataTable AmendCustomerTableName(DataTable ticketTable, string customerNumber)
+        {
+            DataTable dt = new();
+            dt.TableName = customerNumber;
+            DataColumn ccdsCol1 = new DataColumn("Desc", typeof(string));
+            DataColumn ccdsCol2 = new DataColumn("qty", typeof(double));
+
+            dt.Columns.Add(ccdsCol1);
+            dt.Columns.Add(ccdsCol2);
+
+            foreach (DataRow row in ticketTable.Rows)
+            {
+                if (row[0].ToString() == "Discount %")
+                {
+                    DataRow newRow = dt.NewRow();
+                    newRow[0] = "Discount %";
+                    newRow[1] = double.Parse(row[1].ToString());
+                    dt.Rows.Add(newRow);
+                }
+                if (row[0].ToString() == "DiscountStartAmount")
+                {
+                    DataRow newRow = dt.NewRow();
+                    newRow[0] = "DiscountStartAmount";
+                    newRow[1] = double.Parse(row[1].ToString());
+                    dt.Rows.Add(newRow);
+                }
+                if (row[0].ToString() == "TotalItemsPrice")
+                {
+                    DataRow newRow = dt.NewRow();
+                    newRow[0] = "TotalItemsPrice";
+                    newRow[1] = double.Parse(row[4].ToString());
+                    dt.Rows.Add(newRow);
+                    //return dt;
+                }
+            }
+            dt.TableName = customerNumber;
+
+            return dt;
+        }
+
         private void btnProcessBilling_Click(object sender, RoutedEventArgs e)
         {
 
             DataTable UserSelectedTicketsTable = GetTicketsUserWants();
+            
+            
+                                                 
             DataSet XeroDataset = new();
+            DataSet CustomersCombinedDataSet = new();
+
+
+
 
             //DataTable XeroTable = CreateXeroTemplate();
+            //we want to work out the discount for each customer
+            //so lets go through the tickets, grabbing the items total price and adding it to the customer as a new table
+            //foreach (DataTable ticketTable in )
 
-
-
-            //loop through all the tickets processing the ones in the above table
             foreach (DataRow ticketToBillRow in UserSelectedTicketsTable.Rows)
             {
-                string tickToProcess = ticketToBillRow[0].ToString();
+                string ticketToProcess = ticketToBillRow[0].ToString();
+                foreach (DataTable ticketTable in billableTickets.Tables)
+                {
+                    int customerNumber = 0;
+                    string customerNumberString = "";
+
+                    if (ticketTable.TableName == ticketToProcess)
+                    {
+                        //find the customer number of the ticket
+                        foreach(DataRow ticketRow in ticketTable.Rows)
+                        {
+                            if(ticketRow[0].ToString() == "CN")
+                            {
+                                customerNumber = int.Parse(ticketRow[1].ToString());
+                                customerNumberString = "CN" + customerNumber.ToString();
+                                break;
+                            }
+                        }
+
+                        bool customerFound = false;
+
+                        if (CustomersCombinedDataSet.Tables.Count > 0)//make sure we have some table
+                        {
+                            
+                            foreach(DataTable customer in CustomersCombinedDataSet.Tables)
+                            {
+                                //get the name of the table
+                                if(customer.TableName == customerNumberString)
+                                {
+
+                                    //add the total items price
+                                    //customer.Merge(ticketTable);
+                                    foreach(DataRow dataRow in ticketTable.Rows)
+                                    {
+                                        if(dataRow[0].ToString() == "TotalItemsPrice")
+                                        {
+                                            DataRow newRow = customer.NewRow();
+                                            newRow[0] = "TotalItemsPrice";
+                                            newRow[1] = double.Parse(dataRow[4].ToString());
+                                            customer.Rows.Add(newRow);
+                                            break;
+                                        }
+
+                                    }
+                                    customerFound = true;
+                                }
+                            }
+
+                        } else
+                        {
+                            //create the first table
+                            CustomersCombinedDataSet.Tables.Add(AmendCustomerTableName(ticketTable, customerNumberString).Copy());
+                            customerFound = true;
+                        }
+
+                        if (!customerFound)
+                        {
+                            CustomersCombinedDataSet.Tables.Add(AmendCustomerTableName(ticketTable, customerNumberString).Copy());
+                        }
+
+                    }
+                }
+            }
+
+            //create the discout ticket for each customer
+            foreach (DataTable discountTable in CustomersCombinedDataSet.Tables)
+            {
+                double itemTotalPrice = 0.00f;
+                double discountPerc = 0.00f;
+                double discountStart = 0.00f;
+
+                //loop each row to get the total
+                foreach(DataRow itemPriceRow in discountTable.Rows)
+                {
+                    if(itemPriceRow[0].ToString() == "Discount %")
+                    {
+                        discountPerc = double.Parse(itemPriceRow[1].ToString());
+                    }
+                    if(itemPriceRow[0].ToString() == "DiscountStartAmount")
+                    {
+                        discountStart = double.Parse(itemPriceRow[1].ToString());
+                    }
+                    if (itemPriceRow[0].ToString() == "TotalItemsPrice")
+                    {
+                        itemTotalPrice = itemTotalPrice + Math.Round(double.Parse(itemPriceRow[1].ToString()),2,MidpointRounding.AwayFromZero);
+                    }
+                        
+                }
+
+                if (itemTotalPrice > discountStart)
+                {
+
+                    double finalDiscount = Math.Round((itemTotalPrice - discountStart) * discountPerc / 100,2,MidpointRounding.AwayFromZero) * -1;
+
+                    //finished looping the rows so create a ticket
+                    DataTable newDiscountTicket = new();
+                    DataColumn col1 = new DataColumn("Desc", typeof(string));
+                    DataColumn col2 = new DataColumn("Val", typeof(string));
+                    DataColumn col3 = new DataColumn("Count", typeof(string));
+                    DataColumn col4 = new DataColumn("ItemPrice", typeof(double));
+                    DataColumn col5 = new DataColumn("ItemTotalPrice", typeof(double));
+
+                    newDiscountTicket.Columns.Add(col1);
+                    newDiscountTicket.Columns.Add(col2);
+                    newDiscountTicket.Columns.Add(col3);
+                    newDiscountTicket.Columns.Add(col4);
+                    newDiscountTicket.Columns.Add(col5);
+
+                    DataRow CNRow = newDiscountTicket.NewRow();
+                    string custNum = discountTable.TableName;
+                    newDiscountTicket.TableName = custNum;
+                    CNRow[0] = "CN";
+                    CNRow[1] = custNum.Substring(2, custNum.Length - 2);
+                    newDiscountTicket.Rows.Add(CNRow);
+
+                    DataRow itemRow = newDiscountTicket.NewRow();
+                    itemRow[0] = "Item";
+                    itemRow[1] = "Discount";
+                    itemRow[2] = "1";
+                    itemRow[3] = finalDiscount;
+                    itemRow[4] = finalDiscount;
+                    newDiscountTicket.Rows.Add(itemRow);
+
+                    //add the table to the unbilled tickets
+                    billableTickets.Tables.Add(newDiscountTicket);
+
+                    //add the name of the ticket to the user selected list
+                    DataRow newUserTicket = UserSelectedTicketsTable.NewRow();
+                    newUserTicket[0] = discountTable.TableName;
+                    UserSelectedTicketsTable.Rows.Add(newUserTicket);
+                }
+            }
+
+            //loop through all the tickets processing the ones in the above table
+            //bool issueFound = false;
+
+            foreach (DataRow ticketToBillRow in UserSelectedTicketsTable.Rows)
+            {
+                string ticketToProcess = ticketToBillRow[0].ToString();
 
                 foreach(DataTable ticketTable in billableTickets.Tables)
                 {
-                    if(ticketTable.TableName == tickToProcess)
+                    if(ticketTable.TableName == ticketToProcess)
                     {
-
-                        XeroDataset.Tables.Add(XeroCSVTable(ticketTable)); //pass the current tickt to be processed 
-
-                        //move the ticket file to the billed tickets folder
-                        MoveTickettoBilledFolder(tickToProcess);
+                        DataTable tempTable = XeroCSVTable(ticketTable).Copy();
                         
+                        if(tempTable.Rows[0][0].ToString() != "Issue")
+                        {
+                            XeroDataset.Tables.Add(tempTable); //pass the current tickt to be processed
+
+                            //move the ticket file to the billed tickets folder
+                            MoveTickettoBilledFolder(ticketToProcess);
+                        } 
+
+
                     }
                 }
 
             }
+
+
+
+            //Merge each customer into its own table first
 
             //create one table with all the data in it
             DataTable XeroFinalTable = CreateXeroTemplate();
@@ -862,19 +1081,28 @@ namespace LaundryManager
             //create the csv file for xero
             if(XeroFinalTable.Rows.Count > 0)
             {
-                CreateCSVFile(XeroFinalTable);
+                CreateCSVFile(XeroFinalTable, 1); //create the import file
+            }
+            if(glob_TicketIssues.Rows.Count > 0)
+            {
+                CreateCSVFile(glob_TicketIssues, 2); //create the report file
             }
 
 
             //close the window
-            MessageBox.Show("Xero File Created", "File Created");
+
+            //show creation report
+            XeroImportIssue xeroImportIssue = new(glob_TicketIssues);
+            xeroImportIssue.Show();
+
             this.Close();
 
         }
 
-        private void CreateCSVFile(DataTable XeroTable)
+        private void CreateCSVFile(DataTable XeroTable, int csvFileToCreate) //1 = xero import file, 2 = xero report file
         {
             string saveFilePath = glob_ticketsFilePath + "\\Xero";
+            string selectedFileName;
 
             //check if the folder exists
             if (!Directory.Exists(saveFilePath))
@@ -883,7 +1111,16 @@ namespace LaundryManager
                 Directory.CreateDirectory(saveFilePath);
             }
 
-            saveFilePath = saveFilePath + "\\Xero_" + DateTime.Now.ToString("dd-MM-yy_HH-mm-ss") + ".csv";
+            if(csvFileToCreate == 1)
+            {
+                selectedFileName = "\\Xero_";
+            } else
+            {
+                selectedFileName = "\\Report_";
+            }
+
+            //saveFilePath = saveFilePath + "\\Xero_" + DateTime.Now.ToString("dd-MM-yy_HH-mm-ss") + ".csv";
+            saveFilePath = saveFilePath + selectedFileName + DateTime.Now.ToString("dd-MM-yy_HH-mm-ss") + ".csv";
 
 
             StringBuilder sb = new StringBuilder();
@@ -910,12 +1147,21 @@ namespace LaundryManager
                 Directory.CreateDirectory(billedTickedsPath);
             }
 
+
             //extract the filename
             int startIndex = filePath.IndexOf("TK-");
-            int endIndex = filePath.IndexOf(".xml") + 4;
-            string filename = filePath.Substring(startIndex,endIndex-startIndex);
 
-            File.Move(filePath, billedTickedsPath + "\\" + filename);
+            if (startIndex < 0)
+            {
+                return;
+            } else
+            {
+                int endIndex = filePath.IndexOf(".xml") + 4;
+                string filename = filePath.Substring(startIndex, endIndex - startIndex);
+
+                File.Move(filePath, billedTickedsPath + "\\" + filename);
+            }
+            
 
 
         }
@@ -934,15 +1180,22 @@ namespace LaundryManager
             string customerAddressCounty = "";
             string customerPostCode = "";
             string customerCN = "0";
+            string ticketNumber = "";
 
 
             foreach (DataRow ticketTableRow in currentTicketTable.Rows) //find the customer name
             {
+                //get the ticket number
+                if(ticketTableRow[0].ToString() == "TicketNumber")
+                {
+                    ticketNumber = "[Ticket:" + int.Parse(ticketTableRow[1].ToString()).ToString() + "] ";
+                }
+
                 if(ticketTableRow[0].ToString() == "CN")
                 {
                     customerCN = ticketTableRow[1].ToString(); //get the CN numer
 
-                    foreach(DataRow customerDetailsRow in customerDetails.Tables["CN" + customerCN].Rows)
+                    foreach(DataRow customerDetailsRow in customerDetails.Tables["CN" + customerCN].Rows) //loop through each customer details tbale
                     {
                         switch (customerDetailsRow[0].ToString())
                         {
@@ -982,6 +1235,7 @@ namespace LaundryManager
                                 customerPostCode = customerDetailsRow[1].ToString();
                                 break;
                         }
+                        //break;
                     }
                     break; //customer found so stop scanning
                 }
@@ -1002,56 +1256,48 @@ namespace LaundryManager
             string invoiceDate = DateTime.Now.ToString("dd/MM/yyyy");
             string invoiceDueDate = DateTime.Now.AddDays(7).ToString("dd/MM/yyyy");
 
+            bool ticketIssue = false;
+
             foreach(DataRow dr in currentTicketTable.Rows) //loop through each row in the ticket table
             {
                 //DataRow newRow = dt.NewRow();
+                //ticketIssue = false;
 
                 switch (dr[0].ToString())
                 {
-                    case "DeliveryCount":  
-                        DataRow newDeliveryRow = dt.NewRow();
-                        newDeliveryRow[0] = customerContactFirstName + " " + customerContactSecondName;
-                        newDeliveryRow[1] = customerEMail;
-                        newDeliveryRow[2] = customerAddress1;
-                        newDeliveryRow[3] = customerAddress2;
-                        newDeliveryRow[4] = customerAddress3;
-                        newDeliveryRow[6] = customerAddressTown;
-                        newDeliveryRow[7] = customerAddressCounty;
-                        newDeliveryRow[8] = customerPostCode;
-                        newDeliveryRow[10] = invoiceNumber;
-                        newDeliveryRow[11] = reference;
-                        newDeliveryRow[12] = invoiceDate;
-                        newDeliveryRow[13] = invoiceDueDate;
-                        newDeliveryRow[16] = "Delivery";
-                        newDeliveryRow[17] = dr[1].ToString();
-                        newDeliveryRow[18] = dr[3].ToString();
-                        newDeliveryRow[20] = "200-032";
-                        newDeliveryRow[21] = "No VAT";
-                        dt.Rows.Add(newDeliveryRow);//add the row to the table
-                        //newRow = clearRow(dt);
-                        break;
 
-                    case "TotalDiscount":
-                        DataRow newDiscountRow = dt.NewRow();
-                        newDiscountRow[0] = customerContactFirstName + " " + customerContactSecondName;
-                        newDiscountRow[1] = customerEMail;
-                        newDiscountRow[2] = customerAddress1;
-                        newDiscountRow[3] = customerAddress2;
-                        newDiscountRow[4] = customerAddress3;
-                        newDiscountRow[6] = customerAddressTown;
-                        newDiscountRow[7] = customerAddressCounty;
-                        newDiscountRow[8] = customerPostCode;
-                        newDiscountRow[10] = invoiceNumber;
-                        newDiscountRow[11] = reference;
-                        newDiscountRow[12] = invoiceDate;
-                        newDiscountRow[13] = invoiceDueDate;
-                        newDiscountRow[16] = "Discount";
-                        newDiscountRow[17] = "1";
-                        newDiscountRow[18] = dr[4].ToString();
-                        newDiscountRow[20] = "200-999";
-                        newDiscountRow[21] = "No VAT";
-                        dt.Rows.Add(newDiscountRow);//add the row to the table
+                    case "DeliveryCount":
+                        if (int.Parse(dr[1].ToString()) > 0)
+                        {                        
+                            DataRow newDeliveryRow = dt.NewRow(); //create new data table row
+                            newDeliveryRow[0] = customerContactFirstName + " " + customerContactSecondName; //add the customer name
+                            newDeliveryRow[1] = customerEMail; //add the customer email
+                            newDeliveryRow[2] = customerAddress1; //add customer address ..
+                            newDeliveryRow[3] = customerAddress2;
+                            newDeliveryRow[4] = customerAddress3;
+                            newDeliveryRow[6] = customerAddressTown;
+                            newDeliveryRow[7] = customerAddressCounty;
+                            newDeliveryRow[8] = customerPostCode;
+                            newDeliveryRow[10] = invoiceNumber; //get the invoice numer
+                            newDeliveryRow[11] = reference; //get the reference
+                            newDeliveryRow[12] = invoiceDate; //invoice date
+                            newDeliveryRow[13] = invoiceDueDate; //invoice due date
+                            newDeliveryRow[16] = ticketNumber + "Delivery"; //add the ticket number and delivery
+                            newDeliveryRow[17] = dr[1].ToString(); //amount of deliverys
+                            newDeliveryRow[18] = dr[3].ToString(); //price of the delivery run (per item)
+                            if((int.Parse(newDeliveryRow[17].ToString()) > 0) && (double.Parse(newDeliveryRow[18].ToString()) <= 0.00d)) //we have delivery but no price
+                            {                              
+                                ticketIssue = AssignTicketIssueToTable(ticketNumber.ToString(), CONST_noDelPrice, 3);
+                            }
+                                                           
+                            newDeliveryRow[20] = "200-032"; //delivery xero code
+                            newDeliveryRow[21] = "No VAT"; //no vat included
+                            dt.Rows.Add(newDeliveryRow);//add the row to the table
                         break;
+                        } else
+                        {
+                            break;
+                        }
 
                     case "Item":
                         DataRow newItemRow = dt.NewRow();
@@ -1067,26 +1313,60 @@ namespace LaundryManager
                         newItemRow[11] = reference;
                         newItemRow[12] = invoiceDate;
                         newItemRow[13] = invoiceDueDate;
-                        newItemRow[16] = dr[1].ToString();
+                        newItemRow[16] = ticketNumber + dr[1].ToString();
                         newItemRow[17] = dr[2].ToString();
                         newItemRow[18] = dr[3].ToString();
-                        foreach(DataRow priceListRow in priceListUsed.Rows)
+                        if (dr[1].ToString() == "Discount")
                         {
-                            if(priceListRow[1].ToString() == dr[1].ToString())
+                            newItemRow[20] = CONST_discountCode;
+                        } else
+                        {
+                            bool codeFound = false;
+                            foreach (DataRow priceListRow in priceListUsed.Rows)
                             {
-                                newItemRow[20] = priceListRow[0].ToString();
-                                break; //exit this for each loop emmediatly
+                                if (priceListRow[1].ToString() == dr[1].ToString())
+                                {
+                                    newItemRow[20] = priceListRow[0].ToString();// the code
+                                    codeFound = true;
+                                    break; //exit this for each loop emmediatly
+                                }
+                            }
+                            if (!codeFound)
+                            {
+                                ticketIssue = AssignTicketIssueToTable(ticketNumber.ToString(), CONST_noXeroCode, 2);
                             }
                         }
-                        //newItemRow[20] = "200-999"; //need to add a code to the datatable
-                        newItemRow[21] = "No VAT";
+                        newItemRow[21] = CONST_vatLable;
                         dt.Rows.Add(newItemRow);//add the row to the table
                         break;
                 }
             }
             
+            if(dt.Rows.Count <= 0)
+            {
+                //we have a blank ticket
+                ticketIssue = AssignTicketIssueToTable(ticketNumber.ToString(), CONST_emptyTicket, 1);
+            }
 
-            return dt;
+            if (!ticketIssue)
+            {
+                //deal with the discount generation for reporting
+                string ticketToCN = ticketNumber.ToString();
+
+                if(ticketNumber == "" && dt.Rows[0]["*AccountCode"].ToString() == "200-999")
+                {
+                    ticketToCN = "CN" + customerCN.ToString() + " - Discount";
+                }
+                AssignTicketIssueToTable(ticketToCN, CONST_ok, 100);
+                return dt;
+            } else
+            {
+                dt.Clear(); //dont add this ticket to the billed tickets so clear it all out
+                DataRow issueRow = dt.NewRow(); //create new row in the table to say there was a problem with this ticket
+                issueRow[0] = "Issue";
+                dt.Rows.Add(issueRow);
+                return dt;
+            }
         }
 
 

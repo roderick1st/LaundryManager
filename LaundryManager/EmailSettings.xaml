@@ -5,24 +5,44 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LaundryManager"
         mc:Ignorable="d"
-        Title="EmailSettings" Height="200" Width="400"
+        Title="EmailSettings" Height="300" Width="600"
         Loaded="EmailSettings_Window_Loaded">
     <Border Padding="10">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="120"/>
+                <ColumnDefinition Width="250"/>
+                <ColumnDefinition Width="13"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0">
                 <Label Content="Mail Server:"/>
                 <Label Content="From Address:"/>
+                <Label Content="Reply Address:"/>
+                <Label Content="Username:"/>
+                <Label Content="Password:"/>
                 <Button x:Name="ESSaveButton" Content="Save" Margin="0 10 0 0" Click="ESSaveButton_Click"/>
                 <Button x:Name="ESCancelButton" Content="Cancel" Margin="0 10 0 0" Click="ESCancelButton_Click"/>
 
             </StackPanel>
             <StackPanel Grid.Column="1">
-                <TextBox x:Name="ESMailServerTextBox" TextWrapping="NoWrap" Text="" Width="200" HorizontalAlignment="Left" Margin="0 5 0 0"/>
-                <TextBox x:Name="ESFromTextBox" TextWrapping="NoWrap" Text="" Width="200" HorizontalAlignment="Left" Margin="0 8 0 0"/>
+                <TextBox x:Name="ESMailServerTextBox" TextWrapping="NoWrap" Width="250" HorizontalAlignment="Left" Margin="0 5 0 0"
+                         GotFocus="ESMailServerTextBox_GotFocus" LostFocus="ESMailServerTextBox_LostFocus"/>
+                <TextBox x:Name="ESFromTextBox" TextWrapping="NoWrap" Text="" Width="250" HorizontalAlignment="Left" Margin="0 8 0 0"
+                         GotFocus="ESFromTextBox_GotFocus" LostFocus="ESFromTextBox_LostFocus"/>
+                <TextBox x:Name="ESReplyTextBox" TextWrapping="NoWrap" Text="" Width="250" HorizontalAlignment="Left" Margin="0 8 0 0"
+                         GotFocus="ESReplyTextBox_GotFocus"  LostFocus="ESReplyTextBox_LostFocus"/>
+                <TextBox x:Name="ESUnameTextBox" TextWrapping="NoWrap" Text="" Width="250" HorizontalAlignment="Left" Margin="0 8 0 0"
+                         GotFocus="ESUnameTextBox_GotFocus"  LostFocus="ESUnameTextBox_LostFocus"/>
+                <TextBox x:Name="ESPassTextBox" TextWrapping="NoWrap" Text="" Width="250" HorizontalAlignment="Left" Margin="0 8 0 0"
+                         GotFocus="ESPassTextBox_GotFocus"  LostFocus="ESPassTextBox_LostFocus"/>
+            </StackPanel>
+            <StackPanel Grid.Column="2">
+                <Label Content=":"/>
+            </StackPanel>
+            <StackPanel Grid.Column="3">
+                <TextBox x:Name="ESPortTextBox" TextWrapping="NoWrap" Width="50" HorizontalAlignment="Left" Margin="0 5 0 0"
+                         GotFocus="ESPortTextBox_GotFocus"  LostFocus="ESPortTextBox_LostFocus"/>
             </StackPanel>
         </Grid>
     </Border>

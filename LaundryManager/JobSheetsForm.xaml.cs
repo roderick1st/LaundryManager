@@ -80,11 +80,12 @@ namespace LaundryManager
             //load the known customers into the list box
             PopulateCustomerComboBox();
 
+            //populate the columns in the ticketinformation
+            AddColumnsToTicketInformation();
+
             //select the active customer in the list box
             SelectActiveCustomer(globJS_CurrentCustomer);
 
-            //populate the columns in the ticketinformation
-            AddColumnsToTicketInformation();
 
             //get the file data from the ticket files
             GetTicketFileData();

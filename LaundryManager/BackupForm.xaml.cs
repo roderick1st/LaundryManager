@@ -28,27 +28,35 @@ namespace LaundryManager
         private void Backup_Window_Loaded(object sender, RoutedEventArgs e)
         {
             //populate the backup drive list box
-            if(DriveInfo.GetDrives() != null)
+            if (DriveInfo.GetDrives() != null)
             {
                 string driveDesc;
                 string driveVolLable;
 
                 var driveList = DriveInfo.GetDrives();
-                foreach(var drive in driveList)
+                foreach (var drive in driveList)
                 {
-                    if(drive.VolumeLabel != "")
+                    try
                     {
-                        driveVolLable = drive.VolumeLabel;
-                    } else
-                    {
-                        driveVolLable = "";
+                        if (drive.VolumeLabel != "")
+                        {
+                            driveVolLable = drive.VolumeLabel;
+                        } else
+                        {
+                            driveVolLable = "";
+                        }
+                        driveDesc = drive.Name;
+                        driveDesc = driveDesc + " [" + driveVolLable + "]";
+                        bkListBoxDrives.Items.Add(driveDesc);
                     }
-                    driveDesc = drive.Name;
-                    driveDesc = driveDesc + " [" + driveVolLable + "]";
-                    bkListBoxDrives.Items.Add(driveDesc);
+                    catch
+                    {
+
+                    }
+
                 }
+
             }
-            
         }
 
         private void bkListBoxDrives_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -65,7 +73,7 @@ namespace LaundryManager
 
         private void bkButtonBackup_Click(object sender, RoutedEventArgs e)
         {
-            if(bkListBoxDrives.SelectedItem != null)
+            if (bkListBoxDrives.SelectedItem != null)
             {
                 //make the filename
                 DateTime currentDateTime = DateTime.Now;
@@ -76,7 +84,7 @@ namespace LaundryManager
                 string backupDrive = bkListBoxDrives.SelectedItem.ToString().Substring(0, 2);
                 backupDrive = backupDrive + "/LaundryBackup";
 
-                string fullBackupFolderPath = "";
+                string fullBackupFolderPath;
                 fullBackupFolderPath = backupDrive + "/" + bkfoldername;
 
                 //string backupFolder = backupDrive + "/" + 
@@ -93,56 +101,27 @@ namespace LaundryManager
                     Directory.CreateDirectory(fullBackupFolderPath);
                 }
 
-                //should now have the full back made
-                string workingFilesPath = "";
-                workingFilesPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Laundry\\";
-                //Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Laundry\\";
+                string workingFilesPath;
+                workingFilesPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/Laundry/";
 
-                //loop each directory
-                string[] dirs = Directory.GetDirectories(workingFilesPath, "*", SearchOption.AllDirectories);
-                string shortDir = "";
-                string shortFile = "";
-                foreach (string dir in dirs)
+                //create the full directory structure
+                string[] dirList = Directory.GetDirectories(workingFilesPath, "*", SearchOption.AllDirectories);
+                foreach (string dir in dirList)
                 {
-                    //create the directory in the backup faolder
-                    //get the directory name
-                    for(int chars = dir.Length-1; chars > 0; chars--)
+                    string dirName = dir.Substring(dir.LastIndexOf('/') + 1, dir.Length - dir.LastIndexOf('/') - 1);
+                    if (!Directory.Exists(fullBackupFolderPath + "/" + dirName))
                     {
-                        if(dir[chars] == '\\')
-                        {
-                            shortDir = dir.Substring(chars);
-                            break;
-                        }
-                    }
-                    Directory.CreateDirectory(fullBackupFolderPath + shortDir);
-                    string[] files = Directory.GetFiles(dir);
-                    foreach (string file in files)
-                    {
-                        for (int chars = file.Length - 1; chars > 0; chars--)
-                        {
-                            if (file[chars] == '\\')
-                            {
-                                shortFile = file.Substring(chars);
-                                break;
-                            }
-                        }
-                        File.Copy(file, fullBackupFolderPath + shortDir + shortFile, true);
+                        //create the directory
+                        Directory.CreateDirectory(fullBackupFolderPath + "/" + dirName);
                     }
                 }
 
-                //copy the top level files as well
-                string[] topfiles = Directory.GetFiles(workingFilesPath);
-                foreach (string file in topfiles)
-                {
-                    for (int chars = file.Length - 1; chars > 0; chars--)
-                    {
-                        if (file[chars] == '\\')
-                        {
-                            shortFile = file.Substring(chars);
-                            break;
-                        }
-                    }
-                    File.Copy(file, fullBackupFolderPath + shortFile, true);
+                //bit of a re write to hit all directories
+                var allFiles = Directory.GetFiles(workingFilesPath, "*.*", SearchOption.AllDirectories);
+
+                foreach (string newPath in allFiles)
+                { 
+                    File.Copy(newPath, newPath.Replace(workingFilesPath, fullBackupFolderPath + "/"), true);
                 }
 
 

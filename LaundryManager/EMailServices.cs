@@ -20,6 +20,60 @@ namespace LaundryManager
             string mailServerSettingsFilePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Laundry\\MailServerSettings.xml";
             DataTable dt = mailSettings.MailServerSettingsTable(mailServerSettingsFilePath);
 
+            
+            string mailServer = dt.Rows[0]["MailServer"].ToString();
+            int smtpPort = int.Parse(dt.Rows[0]["SMTPPort"].ToString());
+            string fromAddress = dt.Rows[0]["ToAddress"].ToString();
+            string replyAddress = dt.Rows[0]["ReplyAddress"].ToString();
+            string username = dt.Rows[0]["Username"].ToString();
+            string password = dt.Rows[0]["Password"].ToString();
+
+
+            //string to = "";
+            //to = "rod.james.avery@googlemail.com";
+
+            MailMessage message = new MailMessage();
+
+            //message.From = new MailAddress(fromAddress);
+            message.From = new MailAddress(fromAddress);
+            foreach (string email in eMailAddresses)
+            {
+                message.To.Add(email);
+            }
+
+            message.ReplyToList.Add(replyAddress);// = new MailAddress(replyAddress);
+            message.Subject = emSubject;
+            message.Body = emBody;
+            
+            SmtpClient client = new SmtpClient(mailServer, smtpPort);
+
+            //@AveryGaunt11@
+            //woldslaundry.services@averysradnage.co.uk
+
+            client.Credentials = new NetworkCredential(username, password);
+            //client.DeliveryMethod = SmtpDeliveryMethod.Network;
+            client.EnableSsl = true;
+            //client.UseDefaultCredentials = true;
+        
+            try
+            {
+                client.Send(message);
+                return "Message Sent";
+            }
+            catch (Exception e)
+            {
+                return getIP(e);
+            }
+        }
+
+        /*public string SendEmail(List<string> eMailAddresses, string emSubject, string emBody)
+        {
+
+            //get the mail server settings
+            MailServerSettings mailSettings = new();
+            string mailServerSettingsFilePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Laundry\\MailServerSettings.xml";
+            DataTable dt = mailSettings.MailServerSettingsTable(mailServerSettingsFilePath);
+
             string mailServer = dt.Rows[0][0].ToString();
             string fromAddress = dt.Rows[0][1].ToString();
 
@@ -42,9 +96,9 @@ namespace LaundryManager
                 return "Message Sent";
             } catch(Exception e)
             {
-                return getIP();
+                return getIP(e);
             }            
-        }
+        }*/
 
         /*public string SendEmail(List<string> eMailAddresses, string emSubject, string emBody)
         {
@@ -83,7 +137,7 @@ namespace LaundryManager
             }
         }*/
 
-        private string getIP()
+        private string getIP(Exception e)
         {
             var host = Dns.GetHostEntry(Dns.GetHostName());
             bool correctIP = false;
@@ -99,9 +153,13 @@ namespace LaundryManager
                 }
             }
 
+            //for testing
+            correctIP = true;
+            ///
+
             if(correctIP == true)
             {
-                return "FAILED: Other EMail Issue";
+                return "FAILED: " + e.ToString();
             } 
             else
             {
