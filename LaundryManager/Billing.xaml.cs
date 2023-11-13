@@ -30,14 +30,14 @@ namespace LaundryManager
         string glob_ticketsFilePath = "";
         string glob_PriceListsFolder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Laundry\\PriceLists";
         string glob_CustomerDetailsXML = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Laundry\\CustomerDetails.xml";
-        DataTable gridTableOfBillibletickets = new();
+        DataTable glob_gridTableOfBillibletickets = new();
         DataTable glob_PriceListsTable;
         DataTable glob_TicketIssues = new();
-        DataSet unbilledTicketsDataSet = new(); //tickets that are unbilled
-        DataSet billableTickets = new(); //tickets within the date range that are unbilled
+        DataSet glob_unbilledTicketsDataSet = new(); //tickets that are unbilled
+        DataSet glob_billableTickets = new(); //tickets within the date range that are unbilled
         //DataSet finnishedTickets = new(); //because we need a new table after adding items in billabletickets
-        DataSet customerDetails = new();
-        DataTable priceListUsed = new();
+        DataSet glob_customerDetails = new();
+        DataTable glob_priceListUsed = new();
         bool firstRun = true;
 
         //glob constants
@@ -49,12 +49,16 @@ namespace LaundryManager
         const string CONST_discountCode = "200-999";
         const string CONST_vatLable = "No VAT";
 
+        const string CONST_runReport = "Run Report";
+        const string CONST_processBilling = "Process Billing";
+
 
 
         public Billing()
         {
             InitializeComponent();
             glob_ticketsFilePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Laundry\\Tickets";
+            btnProcessBilling.Content = "Run Report";
         }
 
         private void DataGridRowHeader_Click(object sender, RoutedEventArgs e)
@@ -121,20 +125,20 @@ namespace LaundryManager
                 }
 
                 //add the table to the dataset
-                customerDetails.Tables.Add(customerTable);
+                glob_customerDetails.Tables.Add(customerTable);
 
             }
         }
 
         private void ClearDataSets()
         {
-            int tableCount = billableTickets.Tables.Count;
+            int tableCount = glob_billableTickets.Tables.Count;
             //billableTickets.Clear();
 
             for (int i = 0; i < tableCount; i++)
             {
-                DataTable table = billableTickets.Tables[0];
-                billableTickets.Tables.Remove(table);
+                DataTable table = glob_billableTickets.Tables[0];
+                glob_billableTickets.Tables.Remove(table);
             }
             
 
@@ -185,7 +189,7 @@ namespace LaundryManager
 
             //string rowHeading;
             //loopthrough the ticket dataset and get all tickets that fall in the date range
-            foreach (DataTable unbilledTicketTable in unbilledTicketsDataSet.Tables)
+            foreach (DataTable unbilledTicketTable in glob_unbilledTicketsDataSet.Tables)
             {
                 bool ticketInDateRange = false;
                 bool ticketNotBilled = false;
@@ -218,14 +222,14 @@ namespace LaundryManager
 
                 if (ticketInDateRange && ticketNotBilled)                                                        //if the ticket is billable
                 {
-                    billableTickets.Tables.Add(unbilledTicketTable.Copy());                                     //add it to the billable tickets table
+                    glob_billableTickets.Tables.Add(unbilledTicketTable.Copy());                                     //add it to the billable tickets table
                 }
             }
         }
 
         private void AddNewColumnsToBillableTickets()
         {
-            foreach (DataTable billableTicketTable in billableTickets.Tables)                           //loop through each table in the billableTickets Dataset
+            foreach (DataTable billableTicketTable in glob_billableTickets.Tables)                           //loop through each table in the billableTickets Dataset
             {
                 DataColumnCollection columnNames = billableTicketTable.Columns;                         //check to see if the columns already exist
 
@@ -270,7 +274,7 @@ namespace LaundryManager
             
             //current price list is stored in PriceListUsed - loaded when we clicked on the price list listbox
             //foreach(DataTable ticketTable in unbilledTicketsDataSet.Tables)
-            foreach (DataTable billableTicketTable in billableTickets.Tables)                           //loop through each table in the billableTickets Dataset
+            foreach (DataTable billableTicketTable in glob_billableTickets.Tables)                           //loop through each table in the billableTickets Dataset
                 {
 
                 DataRow discountPercRow = billableTicketTable.NewRow();
@@ -300,7 +304,7 @@ namespace LaundryManager
                         string customerNumber = "CN" + billableTicketTableRow.Field<string>("Val").ToString();             //make the customer number
                         //look up the customer in the customer table
                         //Add required data to the processing ticket
-                        foreach(DataRow custDetailsRow in customerDetails.Tables[customerNumber].Rows)  //loop through the customer data for the current customer
+                        foreach(DataRow custDetailsRow in glob_customerDetails.Tables[customerNumber].Rows)  //loop through the customer data for the current customer
                         { 
                             //we want to find the customers:
                             //Discount %
@@ -375,7 +379,7 @@ namespace LaundryManager
                     //find the item
                     if(billableTicketTableRow.Field<string>("Desc") == "Item")
                     {
-                        foreach(DataRow priceListRow in priceListUsed.Rows) //loop through the price list table
+                        foreach(DataRow priceListRow in glob_priceListUsed.Rows) //loop through the price list table
                         {
                             if(priceListRow.Field<string>("Desc") == billableTicketTableRow.Field<string>("Val")) //if the item in the ticket table = the price list table item
                             {
@@ -475,8 +479,8 @@ namespace LaundryManager
 
             //lets create a list for the actual grid on the display
             //loop the newly created billable tickets
-            gridTableOfBillibletickets.Clear();
-            gridTableOfBillibletickets.Columns.Clear();
+            glob_gridTableOfBillibletickets.Clear();
+            glob_gridTableOfBillibletickets.Columns.Clear();
             DataColumn TicketNumCol = new DataColumn("Ticket", typeof(int));
             DataColumn TicketDateCol = new DataColumn("Date", typeof(string));
             DataColumn CustomerNumberCol = new DataColumn("CN", typeof(int));
@@ -495,25 +499,25 @@ namespace LaundryManager
             //DataColumn TicketLocationCol = new DataColumn("TicketID", typeof(string));
             int unbilledIndex = 0;
 
-            gridTableOfBillibletickets.Columns.Add(BillTicket);
-            gridTableOfBillibletickets.Columns.Add(TicketNumCol);
-            gridTableOfBillibletickets.Columns.Add(TicketDateCol);
-            gridTableOfBillibletickets.Columns.Add(CustomerNumberCol);
-            gridTableOfBillibletickets.Columns.Add(CustomerNameCol);
-            gridTableOfBillibletickets.Columns.Add(DiscountCol);
-            gridTableOfBillibletickets.Columns.Add(ItemTotalCol);
+            glob_gridTableOfBillibletickets.Columns.Add(BillTicket);
+            glob_gridTableOfBillibletickets.Columns.Add(TicketNumCol);
+            glob_gridTableOfBillibletickets.Columns.Add(TicketDateCol);
+            glob_gridTableOfBillibletickets.Columns.Add(CustomerNumberCol);
+            glob_gridTableOfBillibletickets.Columns.Add(CustomerNameCol);
+            glob_gridTableOfBillibletickets.Columns.Add(DiscountCol);
+            glob_gridTableOfBillibletickets.Columns.Add(ItemTotalCol);
             //gridTableOfBillibletickets.Columns.Add(DiscountCol);
             //gridTableOfBillibletickets.Columns.Add(SingleDeliveryCharge);
             //gridTableOfBillibletickets.Columns.Add(Deliveries);
-            gridTableOfBillibletickets.Columns.Add(DeliveryTotal);
-            gridTableOfBillibletickets.Columns.Add(TicketTotalPrice);
-            gridTableOfBillibletickets.Columns.Add(UnbilledIndex);
-            gridTableOfBillibletickets.Columns.Add(TicketFile);
+            glob_gridTableOfBillibletickets.Columns.Add(DeliveryTotal);
+            glob_gridTableOfBillibletickets.Columns.Add(TicketTotalPrice);
+            glob_gridTableOfBillibletickets.Columns.Add(UnbilledIndex);
+            glob_gridTableOfBillibletickets.Columns.Add(TicketFile);
             
 
-            foreach (DataTable billableTicket in billableTickets.Tables)
+            foreach (DataTable billableTicket in glob_billableTickets.Tables)
             {
-                DataRow newGridRow = gridTableOfBillibletickets.NewRow();
+                DataRow newGridRow = glob_gridTableOfBillibletickets.NewRow();
 
                 string discountRateForDisplay = "";
                 string discountPercentForDisplay = "";
@@ -583,11 +587,11 @@ namespace LaundryManager
 
                 newGridRow["Discount"] = discountPercentForDisplay + "%" + " | £" + discountRateForDisplay;
 
-                gridTableOfBillibletickets.Rows.Add(newGridRow);
+                glob_gridTableOfBillibletickets.Rows.Add(newGridRow);
             }
 
             //display the new grid
-            dataGridUnbilledTickets.ItemsSource = new DataView(gridTableOfBillibletickets);
+            dataGridUnbilledTickets.ItemsSource = new DataView(glob_gridTableOfBillibletickets);
             //dataGridUnbilledTickets.Columns[singleDeliveryPriceColumn].Visibility = Visibility.Hidden; //hide the single delivery price
             dataGridUnbilledTickets.Columns[indexColumn].Visibility = Visibility.Hidden; //hide the index
             dataGridUnbilledTickets.Columns[0].IsReadOnly = false;
@@ -656,11 +660,11 @@ namespace LaundryManager
             foreach (string ticketFile in ticketFiles)
             {
                 ticketDocument.Load(ticketFile);
-                unbilledTicketsDataSet.Tables.Add(new DataTable(ticketFile));
-                unbilledTicketsDataSet.Tables[ticketFile].Columns.Add("Desc");
+                glob_unbilledTicketsDataSet.Tables.Add(new DataTable(ticketFile));
+                glob_unbilledTicketsDataSet.Tables[ticketFile].Columns.Add("Desc");
                 //unbilledTicketsDataSet.Tables[ticketFile].Columns.Add("Code");
-                unbilledTicketsDataSet.Tables[ticketFile].Columns.Add("Val");
-                unbilledTicketsDataSet.Tables[ticketFile].Columns.Add("Count");
+                glob_unbilledTicketsDataSet.Tables[ticketFile].Columns.Add("Val");
+                glob_unbilledTicketsDataSet.Tables[ticketFile].Columns.Add("Count");
 
 
                 XmlElement root = ticketDocument.DocumentElement;
@@ -672,17 +676,17 @@ namespace LaundryManager
                     {
                         if(childNode.Name != "Items")
                         {
-                            DataRow dataRow = unbilledTicketsDataSet.Tables[ticketFile].NewRow();
+                            DataRow dataRow = glob_unbilledTicketsDataSet.Tables[ticketFile].NewRow();
                             dataRow["Desc"] = childNode.Name;
                             dataRow["Val"] = childNode.InnerText;
                             dataRow["Count"] = "0";
-                            unbilledTicketsDataSet.Tables[ticketFile].Rows.Add(dataRow);
+                            glob_unbilledTicketsDataSet.Tables[ticketFile].Rows.Add(dataRow);
                         }
                         else
                         {
                             foreach (XmlNode itemNode in childNode.ChildNodes)
                             {
-                                DataRow itemRow = unbilledTicketsDataSet.Tables[ticketFile].NewRow();
+                                DataRow itemRow = glob_unbilledTicketsDataSet.Tables[ticketFile].NewRow();
 
                                 itemRow["Desc"] = "Item";
 
@@ -699,7 +703,7 @@ namespace LaundryManager
 
                                 }
 
-                                unbilledTicketsDataSet.Tables[ticketFile].Rows.Add(itemRow);
+                                glob_unbilledTicketsDataSet.Tables[ticketFile].Rows.Add(itemRow);
 
                             }
                             //we need to loop through the items
@@ -780,6 +784,7 @@ namespace LaundryManager
         {
             PopulateBilledTicketsDataGrid();
             btnProcessBilling.IsEnabled = true;
+            btnProcessBilling.Content = CONST_runReport;
         }
 
         private void listBoxPriceLists_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -791,14 +796,14 @@ namespace LaundryManager
         private void StorePriceListDataInTable()
         {
             //on the side, build the data columns for the current price list
-            if(priceListUsed.Columns.Count == 0)
+            if(glob_priceListUsed.Columns.Count == 0)
             {
-                priceListUsed.Columns.Add("Code");
-                priceListUsed.Columns.Add("Desc");
-                priceListUsed.Columns.Add("Price");
+                glob_priceListUsed.Columns.Add("Code");
+                glob_priceListUsed.Columns.Add("Desc");
+                glob_priceListUsed.Columns.Add("Price");
             } else
             {
-                priceListUsed.Rows.Clear();            
+                glob_priceListUsed.Rows.Clear();            
             }
             
 
@@ -820,7 +825,7 @@ namespace LaundryManager
             foreach(XmlNode node in nodes)
             {
 
-                DataRow newRow = priceListUsed.NewRow();
+                DataRow newRow = glob_priceListUsed.NewRow();
 
                 foreach (XmlNode childNode in node)
                 {
@@ -840,7 +845,7 @@ namespace LaundryManager
                     }
                 }
 
-                priceListUsed.Rows.Add(newRow);
+                glob_priceListUsed.Rows.Add(newRow);
                 rowCount++;
             }
           
@@ -878,7 +883,6 @@ namespace LaundryManager
                     newRow[0] = "TotalItemsPrice";
                     newRow[1] = double.Parse(row[4].ToString());
                     dt.Rows.Add(newRow);
-                    //return dt;
                 }
             }
             dt.TableName = customerNumber;
@@ -889,25 +893,16 @@ namespace LaundryManager
         private void btnProcessBilling_Click(object sender, RoutedEventArgs e)
         {
 
-            DataTable UserSelectedTicketsTable = GetTicketsUserWants();
-            
-            
+            DataTable UserSelectedTicketsTable = GetTicketsUserWants(); //get the list of all tickets we are going to process                
                                                  
             DataSet XeroDataset = new();
             DataSet CustomersCombinedDataSet = new();
 
 
-
-
-            //DataTable XeroTable = CreateXeroTemplate();
-            //we want to work out the discount for each customer
-            //so lets go through the tickets, grabbing the items total price and adding it to the customer as a new table
-            //foreach (DataTable ticketTable in )
-
             foreach (DataRow ticketToBillRow in UserSelectedTicketsTable.Rows)
             {
                 string ticketToProcess = ticketToBillRow[0].ToString();
-                foreach (DataTable ticketTable in billableTickets.Tables)
+                foreach (DataTable ticketTable in glob_billableTickets.Tables) //glob_billableTickets holds all tickets in the system
                 {
                     int customerNumber = 0;
                     string customerNumberString = "";
@@ -970,6 +965,8 @@ namespace LaundryManager
                 }
             }
 
+            //CustomersCombinedDataSet holds all details of the tickets we want to process
+
             //create the discout ticket for each customer
             foreach (DataTable discountTable in CustomersCombinedDataSet.Tables)
             {
@@ -1029,10 +1026,18 @@ namespace LaundryManager
                     itemRow[4] = finalDiscount;
                     newDiscountTicket.Rows.Add(itemRow);
 
-                    //add the table to the unbilled tickets
-                    billableTickets.Tables.Add(newDiscountTicket);
+                    //add the discount table to the unbilled tickets
 
-                    //add the name of the ticket to the user selected list
+                    /////////////////// maybe should be added to the tickets the user wants to bill?
+                    ///
+                    if (glob_billableTickets.Tables.Contains(newDiscountTicket.TableName))
+                    {
+                        //remove it
+                        glob_billableTickets.Tables.Remove(newDiscountTicket.TableName);
+                    }
+                    glob_billableTickets.Tables.Add(newDiscountTicket);
+
+                    //add the name of the ticket to the user selected list so we can bill it
                     DataRow newUserTicket = UserSelectedTicketsTable.NewRow();
                     newUserTicket[0] = discountTable.TableName;
                     UserSelectedTicketsTable.Rows.Add(newUserTicket);
@@ -1042,11 +1047,14 @@ namespace LaundryManager
             //loop through all the tickets processing the ones in the above table
             //bool issueFound = false;
 
-            foreach (DataRow ticketToBillRow in UserSelectedTicketsTable.Rows)
-            {
-                string ticketToProcess = ticketToBillRow[0].ToString();
+            //we are going to start / restart processing the tickets so lets clear the issues table
+            glob_TicketIssues.Clear();
 
-                foreach(DataTable ticketTable in billableTickets.Tables)
+            foreach (DataRow ticketToBillRow in UserSelectedTicketsTable.Rows) //userSelectedTickets only holds a list of the filenames for the tickets
+            {
+                string ticketToProcess = ticketToBillRow[0].ToString(); //pull only the tickets we want to process
+
+                foreach(DataTable ticketTable in glob_billableTickets.Tables) //glob_billabletickets holds all the tickets selected within the date range
                 {
                     if(ticketTable.TableName == ticketToProcess)
                     {
@@ -1057,9 +1065,15 @@ namespace LaundryManager
                             XeroDataset.Tables.Add(tempTable); //pass the current tickt to be processed
 
                             //move the ticket file to the billed tickets folder
-                            MoveTickettoBilledFolder(ticketToProcess);
-                        } 
+                            if(btnProcessBilling.Content.ToString() == CONST_runReport)
+                            {
 
+                            } else
+                            {
+                                MoveTickettoBilledFolder(ticketToProcess);
+                            }
+                            
+                        } 
 
                     }
                 }
@@ -1068,34 +1082,49 @@ namespace LaundryManager
 
 
 
-            //Merge each customer into its own table first
-
-            //create one table with all the data in it
-            DataTable XeroFinalTable = CreateXeroTemplate();
-
-            foreach(DataTable dsTable in XeroDataset.Tables)
+            if(btnProcessBilling.Content.ToString() != CONST_runReport) //we are just running the report
             {
-                XeroFinalTable.Merge(dsTable);
-            }
+                //create one table with all the data in it
+                DataTable XeroFinalTable = CreateXeroTemplate();
 
-            //create the csv file for xero
-            if(XeroFinalTable.Rows.Count > 0)
+                foreach (DataTable dsTable in XeroDataset.Tables)
+                {
+                    XeroFinalTable.Merge(dsTable);
+                }
+
+                //create the csv file for xero
+                if (XeroFinalTable.Rows.Count > 0)
+                {
+                    CreateCSVFile(XeroFinalTable, 1); //create the import file
+                }
+
+                this.Close();
+            } else
             {
-                CreateCSVFile(XeroFinalTable, 1); //create the import file
-            }
-            if(glob_TicketIssues.Rows.Count > 0)
-            {
-                CreateCSVFile(glob_TicketIssues, 2); //create the report file
-            }
+                if (glob_TicketIssues.Rows.Count > 0)
+                {
+                    CreateCSVFile(glob_TicketIssues, 2); //create the report file
+                }
 
+                //show creation report
+                XeroImportIssue xeroImportIssue = new(glob_TicketIssues);
+                xeroImportIssue.Show();
 
-            //close the window
-
-            //show creation report
-            XeroImportIssue xeroImportIssue = new(glob_TicketIssues);
-            xeroImportIssue.Show();
-
-            this.Close();
+                //run through the issues list to see if there are any
+                bool stillIssues = false;
+                foreach(DataRow issueRow in glob_TicketIssues.Rows)
+                {
+                    if(issueRow[1].ToString() != CONST_ok)
+                    {
+                        stillIssues = true;
+                    }
+                }
+                if (!stillIssues)
+                {
+                    btnProcessBilling.Content = CONST_processBilling;
+                }
+            }       
+            
 
         }
 
@@ -1195,7 +1224,7 @@ namespace LaundryManager
                 {
                     customerCN = ticketTableRow[1].ToString(); //get the CN numer
 
-                    foreach(DataRow customerDetailsRow in customerDetails.Tables["CN" + customerCN].Rows) //loop through each customer details tbale
+                    foreach(DataRow customerDetailsRow in glob_customerDetails.Tables["CN" + customerCN].Rows) //loop through each customer details tbale
                     {
                         switch (customerDetailsRow[0].ToString())
                         {
@@ -1322,7 +1351,7 @@ namespace LaundryManager
                         } else
                         {
                             bool codeFound = false;
-                            foreach (DataRow priceListRow in priceListUsed.Rows)
+                            foreach (DataRow priceListRow in glob_priceListUsed.Rows)
                             {
                                 if (priceListRow[1].ToString() == dr[1].ToString())
                                 {
