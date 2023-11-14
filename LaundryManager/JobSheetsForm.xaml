@@ -11,7 +11,7 @@
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="360"/>
-                <ColumnDefinition Width="421"/>
+                <ColumnDefinition Width="411"/>
                 <ColumnDefinition Width="150"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
@@ -19,12 +19,12 @@
             <StackPanel Grid.Column="0">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="130"/>
+                        <ColumnDefinition Width="115"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="Customer:" FontSize="25" Margin="10 0 5 2"/>
-                        <TextBlock Text="Tickets:" FontSize="25" Margin="10 350 5 2"/>
+                        <TextBlock Text="Customer:" FontSize="20" Margin="10 0 5 2"/>
+                        <TextBlock Text="Tickets:" FontSize="20" Margin="10 350 5 2"/>
                         <Button x:Name="buttonJSNewTicket" Content="New Ticket" FontSize="20" Click="buttonJSNewTicket_Click" 
                                 Background="GreenYellow" Margin="4 10 4 0" IsEnabled="false"/>
                         <Button x:Name="buttonJSClose" Content="Close" FontSize="20" Click="buttonJSClose_Click" 
@@ -44,8 +44,8 @@
 
             </StackPanel>
             <StackPanel Grid.Column="1">
-                <Label x:Name="labelTickedPanelHeader" Content="" HorizontalAlignment="Left" Width="420"/>
-                <DataGrid x:Name="dataGridJSTickets" Height="659" Margin="0 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="420"
+                <Label x:Name="labelTickedPanelHeader" Content="" HorizontalAlignment="Left" Width="410"/>
+                <DataGrid x:Name="dataGridJSTickets" Height="659" Margin="0 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="410"
                           HorizontalScrollBarVisibility="Hidden" FontSize="15" CanUserResizeRows="False" d:ItemsSource="{d:SampleData}"
                     RowHeaderWidth="25" HeadersVisibility="All">
 
@@ -65,13 +65,13 @@
 
                 </DataGrid>
                 <Button x:Name="buttonJSSaveNewTicket" Content="Save Ticket" FontSize="20" Click="buttonJSSaveNewTicket_Click" 
-                        Background="GreenYellow" IsEnabled="false" Width="420" HorizontalAlignment="Left" />
+                        Background="GreenYellow" IsEnabled="false" Width="410" HorizontalAlignment="Left" />
             </StackPanel>
             <!--<Label x:Name="LabelPaperCodes" Content="Paper Code :" Width="77" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2"/>
             <TextBox x:Name="textBoxJSPaperCodes" Width="182" HorizontalAlignment="Left" Grid.Column="3" Margin="0 4 0 0"
                      TextWrapping="NoWrap" AcceptsReturn="False" Height="20" VerticalAlignment="Top"/>-->
             <StackPanel Grid.Column="2" Grid.ColumnSpan="3">
-                <DataGrid x:Name="dataGridJSShortCodes" Height="469" Margin="0 26 0 0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="300"
+                <DataGrid x:Name="dataGridJSShortCodes" Height="469" Margin="0 26 0 0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="380"
                           HorizontalScrollBarVisibility="Hidden" FontSize="15" CanUserResizeRows="False"
                           RowEditEnding="dataGridJSShortCodes_RowEditEnding" d:ItemsSource="{d:SampleData}"
                           RowHeaderWidth="25" HeadersVisibility="All">
@@ -97,7 +97,7 @@
                 <TextBox x:Name="DelTextBox" FontSize="20" Text="0" Margin="0 5 0 0" Width="40" HorizontalAlignment="Left"/>
             </StackPanel>
             <StackPanel Grid.Column="2" Grid.ColumnSpan="3" Margin="0 535 0 0">
-                <DataGrid x:Name="dataGridTicketSettings" Height="180" HorizontalAlignment="Left" VerticalAlignment="Top" Width="300"
+                <DataGrid x:Name="dataGridTicketSettings" Height="180" HorizontalAlignment="Left" VerticalAlignment="Top" Width="380"
                           HorizontalScrollBarVisibility="Hidden" FontSize="15" d:ItemsSource="{d:SampleData}"
                           Foreground="OrangeRed">
                     

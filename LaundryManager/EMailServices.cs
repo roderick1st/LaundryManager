@@ -12,7 +12,7 @@ namespace LaundryManager
 {
     class EMailServices
     {
-        public string SendEmail(List<string> eMailAddresses, string emSubject, string emBody)
+        public string SendEmail(List<string> eMailAddresses, string emSubject, string emBody, string emAttachment = "")
         {
 
             //get the mail server settings
@@ -27,6 +27,8 @@ namespace LaundryManager
             string replyAddress = dt.Rows[0]["ReplyAddress"].ToString();
             string username = dt.Rows[0]["Username"].ToString();
             string password = dt.Rows[0]["Password"].ToString();
+
+            bool attachmentFailed = false;
 
 
             //string to = "";
@@ -44,6 +46,18 @@ namespace LaundryManager
             message.ReplyToList.Add(replyAddress);// = new MailAddress(replyAddress);
             message.Subject = emSubject;
             message.Body = emBody;
+
+            if(emAttachment != "")
+            {
+                try
+                {
+                    message.Attachments.Add(new Attachment(emAttachment));
+                } catch
+                {
+                    attachmentFailed = true;
+                    //do nothing with the attachment
+                }
+            }
             
             SmtpClient client = new SmtpClient(mailServer, smtpPort);
 
@@ -58,7 +72,14 @@ namespace LaundryManager
             try
             {
                 client.Send(message);
-                return "Message Sent";
+                if (attachmentFailed)
+                {
+                    return "Message sent but attachment failed";
+                } else
+                {
+                    return "Message Sent";
+                }
+                
             }
             catch (Exception e)
             {
@@ -66,76 +87,7 @@ namespace LaundryManager
             }
         }
 
-        /*public string SendEmail(List<string> eMailAddresses, string emSubject, string emBody)
-        {
-
-            //get the mail server settings
-            MailServerSettings mailSettings = new();
-            string mailServerSettingsFilePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Laundry\\MailServerSettings.xml";
-            DataTable dt = mailSettings.MailServerSettingsTable(mailServerSettingsFilePath);
-
-            string mailServer = dt.Rows[0][0].ToString();
-            string fromAddress = dt.Rows[0][1].ToString();
-
-            string to = "";
-            foreach(string email in eMailAddresses)
-            {
-                to = to + "," + email;
-            }
-            to = to.Substring(1, to.Length - 1);
-            //to = "rod.james.avery@googlemail.com";
-
-            MailMessage message = new MailMessage(fromAddress, to);
-            message.Subject = emSubject;
-            message.Body = emBody;
-            //SmtpClient client = new SmtpClient("mta.averysradnage.co.uk");
-            SmtpClient client = new SmtpClient(mailServer);
-            try
-            {
-                client.Send(message);
-                return "Message Sent";
-            } catch(Exception e)
-            {
-                return getIP(e);
-            }            
-        }*/
-
-        /*public string SendEmail(List<string> eMailAddresses, string emSubject, string emBody)
-        {
-            using(SmtpClient smtpClient = new SmtpClient())
-            {
-                //var basicCredential = new NetworkCredential("laundry.application@averysradnage.co.uk", "k17-VXXj2xXglIn");
-                using(MailMessage message = new MailMessage())
-                {
-                    MailAddress fromAddress = new MailAddress("alerts@woldslaundryservices.co.uk");
-                    smtpClient.Host = "192.168.5.33";
-                    smtpClient.Port = 25;
-                    //smtpClient.UseDefaultCredentials = false;
-                    //smtpClient.Credentials = basicCredential;
-
-                    message.From = fromAddress;
-                    message.Subject = emSubject;
-                    message.IsBodyHtml = false;
-                    message.Body = emBody;
-
-                    //foreach(string emailToAddress in eMailAddresses)
-                    //{
-                    //    message.To.Add(emailToAddress);
-                    //}
-                    message.To.Add("rod.james.avery@googlemail.com");
-
-                    try
-                    {
-                        smtpClient.Send(message);
-                        return "Message Sent";
-                    }
-                    catch(Exception ex)
-                    {
-                        return getIP();
-                    }
-                }
-            }
-        }*/
+     
 
         private string getIP(Exception e)
         {

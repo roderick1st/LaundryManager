@@ -135,7 +135,7 @@ namespace LaundryManager
             }
 
             dataGridJSShortCodes.ItemsSource = new DataView(shortCodesData);
-            dataGridJSShortCodes.Columns[0].Width = 50;
+            dataGridJSShortCodes.Columns[0].Width = 70;
             dataGridJSShortCodes.Columns[1].Width = new DataGridLength(1, DataGridLengthUnitType.Star);
 
 

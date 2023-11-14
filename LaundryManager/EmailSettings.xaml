@@ -21,6 +21,7 @@
                 <Label Content="Reply Address:"/>
                 <Label Content="Username:"/>
                 <Label Content="Password:"/>
+                <Label Content="Xero Recipients:"/>
                 <Button x:Name="ESSaveButton" Content="Save" Margin="0 10 0 0" Click="ESSaveButton_Click"/>
                 <Button x:Name="ESCancelButton" Content="Cancel" Margin="0 10 0 0" Click="ESCancelButton_Click"/>
 
@@ -36,6 +37,8 @@
                          GotFocus="ESUnameTextBox_GotFocus"  LostFocus="ESUnameTextBox_LostFocus"/>
                 <TextBox x:Name="ESPassTextBox" TextWrapping="NoWrap" Text="" Width="250" HorizontalAlignment="Left" Margin="0 8 0 0"
                          GotFocus="ESPassTextBox_GotFocus"  LostFocus="ESPassTextBox_LostFocus"/>
+                <TextBox x:Name="ESXeroRecTextBox" TextWrapping="NoWrap" Text="" Width="250" HorizontalAlignment="Left" Margin="0 8 0 0"
+                         GotFocus="ESXeroRecTextBox_GotFocus"  LostFocus="ESXeroRecTextBox_LostFocus"/>
             </StackPanel>
             <StackPanel Grid.Column="2">
                 <Label Content=":"/>

@@ -77,7 +77,7 @@ namespace LaundryManager
                                 nodeCount++;
                             }
 
-                            if (nodeCount < 6)
+                            if (nodeCount < 7)
                             {
                                 CreateSettingsFile(2);
                             }
@@ -99,6 +99,7 @@ namespace LaundryManager
             ESReplyTextBox.Text = dt.Rows[0]["ReplyAddress"].ToString();
             ESUnameTextBox.Text = dt.Rows[0]["Username"].ToString();
             ESPassTextBox.Text = dt.Rows[0]["Password"].ToString();
+            ESXeroRecTextBox.Text = dt.Rows[0]["XeroRecipients"].ToString();
         }
 
         private void CreateSettingsFile(int calledFrom)
@@ -123,34 +124,26 @@ namespace LaundryManager
             settingsRootNode.AppendChild(settingsNode);
 
             XmlElement mailServerNode = settingsFileDoc.CreateElement(string.Empty, "MailServer", string.Empty);
-            //XmlText mailSever_txt = settingsFileDoc.CreateTextNode("smtp.averysradnage.co.uk");
-            //mailServerNode.AppendChild(mailSever_txt);
             settingsNode.AppendChild(mailServerNode);
 
             XmlElement mailServerPortNode = settingsFileDoc.CreateElement(string.Empty, "SMTPPort", string.Empty);
-            //XmlText mailSeverPort_txt = settingsFileDoc.CreateTextNode("587");
-            //mailServerPortNode.AppendChild(mailSeverPort_txt);
             settingsNode.AppendChild(mailServerPortNode);
 
             XmlElement toEmailNode = settingsFileDoc.CreateElement(string.Empty, "ToAddress", string.Empty);
-            //XmlText toEmail_txt = settingsFileDoc.CreateTextNode("theteam@woldslaundryservices.co.uk");
-            //toEmailNode.AppendChild(toEmail_txt);
             settingsNode.AppendChild(toEmailNode);
 
             XmlElement replyEmailNode = settingsFileDoc.CreateElement(string.Empty, "ReplyAddress", string.Empty);
-            //XmlText replyEmail_txt = settingsFileDoc.CreateTextNode("team@woldslaundryservices.co.uk");
-            //replyEmailNode.AppendChild(replyEmail_txt);
             settingsNode.AppendChild(replyEmailNode);
 
             XmlElement usernameNode = settingsFileDoc.CreateElement(string.Empty, "Username", string.Empty);
-            //XmlText replyEmail_txt = settingsFileDoc.CreateTextNode("team@woldslaundryservices.co.uk");
-            //replyEmailNode.AppendChild(replyEmail_txt);
             settingsNode.AppendChild(usernameNode);
 
             XmlElement passwordNode = settingsFileDoc.CreateElement(string.Empty, "Password", string.Empty);
-            //XmlText replyEmail_txt = settingsFileDoc.CreateTextNode("team@woldslaundryservices.co.uk");
-            //replyEmailNode.AppendChild(replyEmail_txt);
             settingsNode.AppendChild(passwordNode);
+
+            XmlElement xeroRecNode = settingsFileDoc.CreateElement(string.Empty, "XeroRecipients", string.Empty);
+            settingsNode.AppendChild(xeroRecNode);
+
 
             settingsFileDoc.Save(glob_MailServerSettingsFilePath);
         }
@@ -202,6 +195,10 @@ namespace LaundryManager
                                 {
                                     grandChild.InnerText = ESPassTextBox.Text;
                                 }
+                                if (grandChild.Name == "XeroRecipients")
+                                {
+                                    grandChild.InnerText = ESXeroRecTextBox.Text;
+                                }
 
                             }
                         }
@@ -245,6 +242,10 @@ namespace LaundryManager
             if (ESPassTextBox.Text.Length < 1)
             {
                 ESPassTextBox.Text = "@AveryGaunt11@";
+            }
+            if (ESXeroRecTextBox.Text.Length < 1)
+            {
+                ESXeroRecTextBox.Text = "team@woldslaundryservices.co.uk;rod@averysradnage.co.uk";
             }
 
         }
@@ -305,6 +306,16 @@ namespace LaundryManager
         }
 
         private void ESPassTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            CheckTextBoxs();
+        }
+
+        private void ESXeroRecTextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            CheckTextBoxs();
+        }
+
+        private void ESXeroRecTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
             CheckTextBoxs();
         }

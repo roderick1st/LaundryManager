@@ -18,6 +18,7 @@ using System.Globalization;
 using System.Windows.Controls.Primitives;
 using System.Collections;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace LaundryManager
 {
@@ -1095,7 +1096,11 @@ namespace LaundryManager
                 //create the csv file for xero
                 if (XeroFinalTable.Rows.Count > 0)
                 {
-                    CreateCSVFile(XeroFinalTable, 1); //create the import file
+                    string fileSaved = CreateCSVFile(XeroFinalTable, 1); //create the import file                   
+                    SendXeroFile(fileSaved);                   
+                } else
+                {
+                    SendXeroFile("No File");
                 }
 
                 this.Close();
@@ -1128,7 +1133,46 @@ namespace LaundryManager
 
         }
 
-        private void CreateCSVFile(DataTable XeroTable, int csvFileToCreate) //1 = xero import file, 2 = xero report file
+        private bool SendXeroFile(string fileAttachment)
+        {
+            string mailServerSettingsFilePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Laundry\\MailServerSettings.xml";
+            List<string> XeroRecipients = new();
+
+            //read the email settings file
+            if (File.Exists(mailServerSettingsFilePath))
+            {
+                MailServerSettings mailSettings = new();
+                DataTable dt = mailSettings.MailServerSettingsTable(mailServerSettingsFilePath);
+                string xeroRecps = ReplaceWhitespace(dt.Rows[0]["XeroRecipients"].ToString(),"");
+
+                var emailAddress = xeroRecps.Split(';');
+
+                //convert from array to list
+                foreach(string eAddress in emailAddress)
+                {
+                    XeroRecipients.Add(eAddress);
+                }
+
+                if (File.Exists(fileAttachment))
+                {
+                    //email it to system
+                    EMailServices eMailServices = new();
+                    eMailServices.SendEmail(XeroRecipients, "Xero Import", "Xero file attached", fileAttachment);
+                    return true; //got to this point. no guarentee but its looking hopefull
+                }
+
+            }
+            
+            return false; //something failed
+        }
+
+        private static readonly Regex sWhitespace = new Regex(@"\s+");
+        public static string ReplaceWhitespace(string input, string replacement)
+        {
+            return sWhitespace.Replace(input, replacement);
+        }
+
+        private string CreateCSVFile(DataTable XeroTable, int csvFileToCreate) //1 = xero import file, 2 = xero report file
         {
             string saveFilePath = glob_ticketsFilePath + "\\Xero";
             string selectedFileName;
@@ -1163,7 +1207,15 @@ namespace LaundryManager
                 sb.AppendLine(string.Join(",", fields));
             }
 
-            File.WriteAllText(saveFilePath, sb.ToString());
+            try
+            {
+                File.WriteAllText(saveFilePath, sb.ToString());
+                return saveFilePath;
+            } catch
+            {
+                return "failed";
+            }
+            
         }
 
         private void MoveTickettoBilledFolder(string filePath)
